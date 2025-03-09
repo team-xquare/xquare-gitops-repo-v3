@@ -1,0 +1,8 @@
+organization: Team-jeong-ho-kim
+repository: Daedongyeojido_BE_v3
+branch: develop/daedong
+containerPort: 8080
+domain: daedong.xquare.app
+language: java
+critical_service: false
+buildConfig: '{"jdk_version":17,"output_dir":"dist","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'

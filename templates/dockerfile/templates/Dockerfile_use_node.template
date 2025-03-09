@@ -1,0 +1,24 @@
+{%- if builder == "node" %}
+FROM node:{{ node_version }} AS build
+
+COPY . .
+
+{% for command in build_commands %}
+RUN --mount=type=cache,target=/root/.npm \
+    {{ command }}
+{% endfor %}
+
+FROM node:{{ node_version }}
+
+COPY --from=build . .
+
+EXPOSE {{ port }}
+
+{%- if command %}
+CMD [
+  {%- for arg in command.split() %}
+  {%- if not loop.first %}, {% endif %}"{{ arg }}"
+  {%- endfor %}]
+{%- endif %}
+
+{%- endif %}

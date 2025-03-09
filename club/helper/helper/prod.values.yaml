@@ -1,0 +1,8 @@
+organization: Team-LoopCat
+repository: Helper_Backend
+branch: main
+containerPort: 8080
+domain: helper.xquare.app
+language: java
+critical_service: false
+buildConfig: '{"jdk_version":17,"output_dir":"/helper-infrastructure/build/libs/helper-infrastructure-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'

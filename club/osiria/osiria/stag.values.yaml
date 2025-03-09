@@ -1,0 +1,8 @@
+organization: 4mjeo
+repository: Osiria
+branch: null
+containerPort: 0
+domain: .xquare.app
+language: java
+critical_service: false
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/OH-SIRIA-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"","build_commands":["./gradlew clean build"]}'

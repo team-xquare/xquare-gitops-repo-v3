@@ -1,0 +1,98 @@
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  name: {{ $fullname }}
+  labels:
+    app: {{ $fullname }}
+    project: {{ .Values.name }}
+    test: test
+    environment: {{ .Values.environment }}
+spec:
+  {{- if eq .Values.critical_service true }}
+  replicas: 2
+  {{- else }}
+  replicas: 1
+  {{- end }}
+  revisionHistoryLimit: 0
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ $fullname }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "false"
+        sidecar.istio.io/proxyCPU: "5m"
+        sidecar.istio.io/proxyMemory: "128Mi"
+        {{- if eq .Values.language "java" }}
+        instrumentation.opentelemetry.io/inject-java: "true"
+        {{- end }}
+        {{- if eq .Values.language "nodejs" }}
+        instrumentation.opentelemetry.io/inject-nodejs: "true"
+        {{- end }}
+        {{- if eq .Values.name "mozu-server" }}
+        sidecar.istio.io/inject: "false"
+        {{- end }}
+      labels:
+        app: {{ $fullname }}
+        project: {{ .Values.name }}
+    spec:
+      serviceAccountName: {{ $fullname }}-account
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - {{ $fullname }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- if eq $fullname "project-secret-manager-be-prod" }}
+      priorityClassName: system-cluster-critical
+      {{- end }}
+      nodeSelector:
+        Karpenter: enabled
+      {{- if eq .Values.critical_service true }}
+      tolerations:
+        - effect: "NoSchedule"
+          key: xquare/critical_service
+          operator: "Equal"
+          value: "true"
+      {{- else }}
+      tolerations:
+        - effect: "NoSchedule"
+          key: xquare/server
+          operator: "Equal"
+          value: "true"
+      {{- end }}
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: {{ $fullname }}
+          image: {{ .Values.image_name }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          envFrom:
+            - secretRef:
+                name: {{ $fullname }}
+          resources:
+            requests:
+              memory: "500Mi"
+              cpu: "20m"
+              ephemeral-storage: "20Mi"
+            limits:
+              memory: "2Gi"
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.containerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 3

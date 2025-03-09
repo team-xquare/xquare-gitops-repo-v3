@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: gocd
+  name: {{ .Values.name }}-{{ .Values.environment }}-docker-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20G
+  storageClassName: build-agent-storage-class
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: build-agent-storage-class
+  namespace: gocd
+provisioner: ebs.csi.aws.com
+parameters:
+  type: gp3
+  iops: "3000"
+  throughput: "125"
+  fsType: ext4
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
