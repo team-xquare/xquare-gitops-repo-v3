@@ -1,0 +1,8 @@
+organization: team-mozu
+repository: mozu-BE
+branch: main
+containerPort: 3000
+domain: mozu-prod.xquare.app
+language: nodejs
+critical_service: false
+buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"node","build_dir":"/","command":"npm run start","port":3000}'

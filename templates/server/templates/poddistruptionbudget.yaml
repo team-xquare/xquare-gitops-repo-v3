@@ -1,0 +1,11 @@
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  name: {{ $fullname }}
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $fullname }}

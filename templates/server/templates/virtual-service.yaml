@@ -1,0 +1,49 @@
+{{- $environment := .Values.environment }}
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- if not .Values.private_service }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullname }}-domain-ingress
+  labels:
+    app.kubernetes.io/instance: xquare-ingress
+  namespace: {{ $namespace }}
+spec:
+  gateways:
+    - istio-system/xquare-ingressgateway
+  hosts:
+    - {{ .Values.domain }}
+  http:
+    - name: {{ .Values.name }}
+      route:
+        - destination:
+            host: '{{ $fullname }}.{{ $namespace }}.svc.cluster.local'
+            port:
+              number: {{ .Values.containerPort }}
+      corsPolicy:
+        allowOrigins:
+          - regex: ".*"
+        allowMethods:
+          - POST
+          - GET
+          - PUT
+          - PATCH
+          - DELETE
+          - OPTIONS
+        allowCredentials: true
+        allowHeaders:
+          - content-type
+          - authorization
+          - accept
+          - accept-encoding
+          - Refresh-Token
+          - X-Not-Using-Xquare-Auth
+          - Oauth-Token
+          - oa-token
+          - Request-User-Id
+          - Request-User-Role
+          - X-Refresh-Token
+          - x-identifier
+        maxAge: "24h"
+{{- end }}

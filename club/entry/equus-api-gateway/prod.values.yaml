@@ -1,0 +1,9 @@
+organization: EntryDSM
+repository: Equus-Api-Gateway
+branch: main
+containerPort: 8080
+domain: equus.xquare.app
+language: java
+critical_service: false
+private_service: false
+buildConfig: '{  "jdk_version": 17,  "output_dir": "/build/libs/Equus-Api-Gateway-0.0.1-SNAPSHOT.jar",  "builder": "gradle",  "build_commands": [    "./gradlew build -x test --build-cache"  ]}'

@@ -1,0 +1,140 @@
+# ------------------------------
+# Configuration API 워크플로우
+#
+# 본 GitHub Actions 워크플로우는 GitOps 기반 환경에서 애플리케이션의 설정
+# 요청을 처리하는 기능을 수행합니다. 이 워크플로우는 "config-api" 타입의
+# repository_dispatch 이벤트를 수신하고, 해당 페이로드에 지정된 액션에 따라
+# 필요한 작업을 수행합니다.
+#
+# 지원되는 액션:
+#  - apply: 지정된 애플리케이션과 환경에 대한 설정을 추가하거나 업데이트합니다.
+#  - remove: 특정 환경 또는 애플리케이션/클럽 전체의 설정을 제거합니다.
+#
+# 사용 예시:
+#  - prod 환경에 특정 애플리케이션의 설정을 적용하는 경우:
+#      github.event.client_payload.path: "club1/app1/prod"
+#      github.event.client_payload.action: "apply"
+#      github.event.client_payload.spec:
+#        {
+#          "organization": "CuberLabs",
+#          "repository": "cuberpin-server",
+#          "branch": "develop"
+#        }
+#
+#  - 특정 환경의 설정을 제거하는 경우:
+#      github.event.client_payload.path: "club1/app1/prod"
+#      github.event.client_payload.action: "remove"
+#
+#  - 애플리케이션의 모든 설정을 제거하는 경우:
+#      github.event.client_payload.path: "club1/app1"
+#      github.event.client_payload.action: "remove"
+#
+#  - 클럽과 그 안에 포함된 모든 애플리케이션 설정을 제거하는 경우:
+#      github.event.client_payload.path: "club1"
+#      github.event.client_payload.action: "remove"
+#
+# 이 워크플로우는 아래와 같은 절차로 작업을 수행합니다:
+#  1. 페이로드에서 지정된 액션을 확인합니다.
+#  2. 해당 액션에 맞춰 설정을 적용하거나 제거합니다.
+#  3. 변경 사항을 커밋하고 푸시하여 변경된 내용을 저장합니다.
+# ------------------------------
+
+name: Configuration API
+
+on:
+  repository_dispatch:
+    types: [config-api]
+
+jobs:
+  handle-request:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: config-update
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install yq
+        run: |
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+
+      - name: Process Request
+        run: |
+          PATH_PARAMS="${{ github.event.client_payload.path }}"
+          ACTION="${{ github.event.client_payload.action }}"
+          SPEC='${{ toJson(github.event.client_payload.spec) }}'
+
+          echo "Processing request: $ACTION $PATH_PARAMS"
+          echo "Spec: $SPEC"
+
+          IFS='/' read -r -a PATH_ARRAY <<< "$PATH_PARAMS"
+          CLUB="${PATH_ARRAY[0]}"
+          APP_NAME="${PATH_ARRAY[1]}"
+          ENV="${PATH_ARRAY[2]:-prod}"
+
+          case "$ACTION" in
+            "apply")
+              mkdir -p "club/$CLUB/$APP_NAME"
+              
+              VALUES_FILE="club/$CLUB/$APP_NAME/$ENV.values.yaml"
+              
+              if [ ! -f "$VALUES_FILE" ]; then
+                echo "{}" | yq eval -P > "$VALUES_FILE"
+              fi
+              
+              echo "$SPEC" | yq eval -P > /tmp/spec.yaml
+              yq eval-all 'select(fileIndex == 0) * select(fileIndex == 1)' "$VALUES_FILE" /tmp/spec.yaml -i "$VALUES_FILE"
+              
+              yq -P "$VALUES_FILE" > /tmp/formatted.yaml
+              mv /tmp/formatted.yaml "$VALUES_FILE"
+              ;;
+
+            "remove")
+              if [ -z "$APP_NAME" ]; then
+                rm -rf "club/$CLUB"
+              else
+                if [ -d "club/$CLUB/$APP_NAME" ]; then
+                  if [ -n "$ENV" ] && [ "$ENV" != "all" ]; then
+                    VALUES_FILE="club/$CLUB/$APP_NAME/$ENV.values.yaml"
+                    if [ -f "$VALUES_FILE" ]; then
+                      rm "$VALUES_FILE"
+                    fi
+                    
+                    if [ -z "$(ls -A "club/$CLUB/$APP_NAME/")" ]; then
+                      rm -rf "club/$CLUB/$APP_NAME"
+                    fi
+                  else
+                    rm -rf "club/$CLUB/$APP_NAME"
+                  fi
+                fi
+                
+                if [ -d "club/$CLUB" ] && [ -z "$(ls -A "club/$CLUB/")" ]; then
+                  rm -rf "club/$CLUB"
+                fi
+              fi
+              ;;
+              
+            *)
+              echo "Unsupported action: $ACTION"
+              exit 1
+              ;;
+          esac
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config user.name "XQUARE GitOps Bot"
+          git config user.email "teamxquare@gmail.com"
+          git add .
+          git commit -m "${{ github.event.client_payload.action }} ${{ github.event.client_payload.path }}"
+          git push

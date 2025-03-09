@@ -1,0 +1,8 @@
+organization: EntryDSM
+repository: Casper-Recruitment
+branch: main
+containerPort: 8080
+domain: stag-entry-casper-recruitment.xquare.app
+language: java
+critical_service: false
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/Equus-Github-Auth-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'

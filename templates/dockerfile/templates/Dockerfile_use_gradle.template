@@ -1,0 +1,19 @@
+FROM amazoncorretto:{{ jdk_version }} AS build
+ENV TZ=Asia/Seoul
+
+WORKDIR /app
+
+COPY . .
+
+{% for command in build_commands %}
+RUN --mount=type=cache,target=/root/.gradle \
+    {{ command }}
+{% endfor %}
+
+FROM amazoncorretto:{{ jdk_version }}
+
+ENV TZ=Asia/Seoul
+
+COPY --from=build /app{{ output_dir }} /app.jar
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]

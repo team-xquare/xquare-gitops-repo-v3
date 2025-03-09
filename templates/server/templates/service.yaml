@@ -1,0 +1,30 @@
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  name: {{ $fullname }}
+  labels:
+    app: {{ $fullname }}
+    project: {{ .Values.name }}
+    environment: {{ .Values.environment }}
+spec:
+  type: {{ if eq .Values.name "mozu-server" }}NodePort{{ else }}ClusterIP{{ end }}
+  selector:
+    app: {{ $fullname }}
+  ports:
+    - name: http
+      port: 80
+      targetPort: {{ .Values.containerPort }}
+      protocol: TCP
+    - name: port
+      port: {{ .Values.containerPort }}
+      targetPort: {{ .Values.containerPort }}
+      protocol: TCP
+    {{- if eq $fullname "xquare-infra-prod" }}
+    - name: otel-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    {{- end }}
