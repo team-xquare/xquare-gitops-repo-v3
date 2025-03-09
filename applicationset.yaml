@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: xquare-applications
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
+        revision: HEAD
+        directories:
+          - path: club/*/*/*
+  template:
+    metadata:
+      name: "{{path.segments[1]}}-{{path.segments[2]}}-{{path.basenameNormalized}}"
+      labels:
+        club: "{{path.segments[1]}}"
+        app: "{{path.segments[2]}}"
+        env: "{{path.basenameNormalized}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
+        targetRevision: HEAD
+        path: templates/server
+        helm:
+          valueFiles:
+            - "../../../{{path}}"
+          parameters:
+            - name: club
+              value: "{{path.segments[1]}}"
+            - name: name
+              value: "{{path.segments[2]}}"
+            - name: environment
+              value: "{{path.basenameNormalized}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{path.segments[1]}}-{{path.segments[2]}}-{{path.basenameNormalized}}"
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
