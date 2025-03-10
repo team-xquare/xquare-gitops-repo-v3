@@ -1,17 +1,17 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  namespace: {{ $namespace }}
   name: {{ $fullname }}
   labels:
-    app: {{ $fullname }}
-    project: {{ .Values.name }}
-    test: test
-    environment: {{ .Values.environment }}
+    app.kubernetes.io/name: {{ $fullname }}
+    app.kubernetes.io/part-of: {{ .Values.name }}
+    app.kubernetes.io/environment: {{ .Values.environment }}
 spec:
-  {{- if eq .Values.critical_service true }}
+  {{- if eq .Values.criticalService true }}
   replicas: 2
   {{- else }}
   replicas: 1
@@ -24,7 +24,7 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: {{ $fullname }}
+      app.kubernetes.io/name: {{ $fullname }}
   template:
     metadata:
       annotations:
@@ -41,8 +41,8 @@ spec:
         sidecar.istio.io/inject: "false"
         {{- end }}
       labels:
-        app: {{ $fullname }}
-        project: {{ .Values.name }}
+        app.kubernetes.io/name: {{ $fullname }}
+        app.kubernetes.io/part-of: {{ .Values.name }}
     spec:
       serviceAccountName: {{ $fullname }}-account
       affinity:
@@ -50,7 +50,7 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: app
+                  - key: app.kubernetes.io/name
                     operator: In
                     values:
                       - {{ $fullname }}
@@ -60,10 +60,10 @@ spec:
       {{- end }}
       nodeSelector:
         Karpenter: enabled
-      {{- if eq .Values.critical_service true }}
+      {{- if eq .Values.criticalService true }}
       tolerations:
         - effect: "NoSchedule"
-          key: xquare/critical_service
+          key: xquare/criticalService
           operator: "Equal"
           value: "true"
       {{- else }}
@@ -76,7 +76,7 @@ spec:
       terminationGracePeriodSeconds: 120
       containers:
         - name: {{ $fullname }}
-          image: {{ .Values.image_name }}
+          image: {{ .Values.imageName }}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: {{ .Values.containerPort }}

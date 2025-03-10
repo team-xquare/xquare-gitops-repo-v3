@@ -1,18 +1,19 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
   name: {{ $fullname }}-vpa
-  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  namespace: {{ $namespace }}
 spec:
   targetRef:
     apiVersion: "apps/v1"
-    kind:       Deployment
-    name:       {{ $fullname }}
+    kind: Deployment
+    name: {{ $fullname }}
   updatePolicy:
     updateMode: "Auto"
   resourcePolicy:
     containerPolicies:
       - containerName: "*"
-        controlledResources: [ "memory" ]
-
+        controlledResources: ["memory"]

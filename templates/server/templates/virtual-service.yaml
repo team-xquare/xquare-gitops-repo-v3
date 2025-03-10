@@ -1,14 +1,15 @@
-{{- $environment := .Values.environment }}
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-{{- if not .Values.private_service }}
+
+{{- if not .Values.privateService }}
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: {{ $fullname }}-domain-ingress
+  namespace: {{ $namespace }}
   labels:
     app.kubernetes.io/instance: xquare-ingress
-  namespace: {{ $namespace }}
+    app.kubernetes.io/name: {{ $fullname }}
 spec:
   gateways:
     - istio-system/xquare-ingressgateway

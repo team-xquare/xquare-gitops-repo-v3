@@ -1,8 +1,10 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  namespace: {{ $namespace }}
   name: {{ $fullname }}
 spec:
   maxUnavailable: 0
