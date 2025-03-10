@@ -1,18 +1,19 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: {{ .Values.club }}-{{ .Values.environment }}
+  namespace: {{ $namespace }}
   name: {{ $fullname }}
   labels:
-    app: {{ $fullname }}
-    project: {{ .Values.name }}
-    environment: {{ .Values.environment }}
+    app.kubernetes.io/name: {{ $fullname }}
+    app.kubernetes.io/part-of: {{ .Values.name }}
+    app.kubernetes.io/environment: {{ .Values.environment }}
 spec:
   type: {{ if eq .Values.name "mozu-server" }}NodePort{{ else }}ClusterIP{{ end }}
   selector:
-    app: {{ $fullname }}
+    app.kubernetes.io/name: {{ $fullname }}
   ports:
     - name: http
       port: 80
