@@ -4,19 +4,21 @@ metadata:
   name: xquare-applications
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
         repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
         revision: HEAD
-        directories:
-          - path: club/*/*/*
+        files:
+          - path: "club/*/*/*.values.yaml"
   template:
     metadata:
-      name: "{{path.segments[1]}}-{{path.segments[2]}}-{{path.basenameNormalized}}"
+      name: '{{.path.segments.1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       labels:
-        club: "{{path.segments[1]}}"
-        app: "{{path.segments[2]}}"
-        env: "{{path.basenameNormalized}}"
+        club: "{{.path.segments.1}}"
+        app: "{{.path.segments.2}}"
+        env: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
     spec:
       project: default
       source:
@@ -25,17 +27,17 @@ spec:
         path: templates/server
         helm:
           valueFiles:
-            - "../../../{{path}}"
+            - "../../../{{.path.path}}"
           parameters:
             - name: club
-              value: "{{path.segments[1]}}"
+              value: "{{.path.segments.1}}"
             - name: name
-              value: "{{path.segments[2]}}"
+              value: "{{.path.segments.2}}"
             - name: environment
-              value: "{{path.basenameNormalized}}"
+              value: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: "{{path.segments[1]}}-{{path.segments[2]}}-{{path.basenameNormalized}}"
+        namespace: '{{.path.segments.1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       syncPolicy:
         automated:
           prune: true
