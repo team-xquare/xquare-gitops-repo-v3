@@ -4,5 +4,5 @@ branch: develop
 containerPort: 3000
 domain: founderz-stag.xquare.app
 language: javascript
-critical_service: false
+criticalService: false
 buildConfig: '{"node_version":"22.5.1","build_commands":["yarn && yarn build"],"builder":"node_with_nginx","build_dir":"/","output_dir":"build","port":3000}'

@@ -4,5 +4,5 @@ branch: main
 containerPort: 8080
 domain: mmm-api.xquare.app
 language: java
-critical_service: false
+criticalService: false
 buildConfig: '{"jdk_version":21,"output_dir":"mmm/build/libs","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'

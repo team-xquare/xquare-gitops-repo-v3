@@ -4,5 +4,5 @@ branch: develop/daedong
 containerPort: 8080
 domain: daedong.xquare.app
 language: java
-critical_service: false
+criticalService: false
 buildConfig: '{"jdk_version":17,"output_dir":"dist","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
