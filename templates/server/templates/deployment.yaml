@@ -37,9 +37,6 @@ spec:
         {{- if eq .Values.language "nodejs" }}
         instrumentation.opentelemetry.io/inject-nodejs: "true"
         {{- end }}
-        {{- if eq .Values.name "mozu-server" }}
-        sidecar.istio.io/inject: "false"
-        {{- end }}
       labels:
         app.kubernetes.io/name: {{ $fullname }}
         app.kubernetes.io/part-of: {{ .Values.name }}

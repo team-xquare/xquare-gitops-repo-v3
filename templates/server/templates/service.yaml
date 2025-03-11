@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/part-of: {{ .Values.name }}
     app.kubernetes.io/environment: {{ .Values.environment }}
 spec:
-  type: {{ if eq .Values.name "mozu-server" }}NodePort{{ else }}ClusterIP{{ end }}
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: {{ $fullname }}
   ports:
