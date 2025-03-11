@@ -22,6 +22,7 @@ spec:
             host: '{{ $fullname }}.{{ $namespace }}.svc.cluster.local'
             port:
               number: {{ .Values.containerPort }}
+      timeout: 3600s
       corsPolicy:
         allowOrigins:
           - regex: ".*"
@@ -46,7 +47,12 @@ spec:
           - Request-User-Role
           - X-Refresh-Token
           - x-identifier
+          - last-event-id
+          - cache-control
+          - connection
         exposeHeaders:
           - content-type
+          - cache-control
+          - connection
         maxAge: "24h"
 {{- end }}
