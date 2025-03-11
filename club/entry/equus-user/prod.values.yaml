@@ -4,6 +4,6 @@ branch: main
 containerPort: 8080
 domain: equus-feed.xquare.app
 language: java
-critical_service: false
+criticalService: false
 private_service: true
 buildConfig: '{  "jdk_version": 17,  "output_dir": "/build/libs/Equus-User-0.0.0.jar",  "builder": "gradle",  "build_commands": [    "./gradlew build -x test --build-cache"  ]}'

@@ -4,5 +4,5 @@ branch: develop
 containerPort: 3000
 domain: lotura-stag.xquare.app
 language: javascript
-critical_service: false
+criticalService: false
 buildConfig: '{"node_version":"22.5.1","build_commands":["yarn && yarn build"],"builder":"node","build_dir":"","command":"yarn start","port":3000}'

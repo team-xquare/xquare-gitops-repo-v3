@@ -3,6 +3,6 @@ repository: xquare-infra-backend
 branch: main
 containerPort: 8080
 domain: xquare-infra-backend.xquare.app
-critical_service: false
+criticalService: false
 private_service: false
 buildConfig: '{  "jdk_version": 17,  "output_dir": "/build/libs/xquare-infra-0.0.1-SNAPSHOT.jar",  "builder": "gradle",  "build_commands": [    "./gradlew build -x test --build-cache"  ]}'

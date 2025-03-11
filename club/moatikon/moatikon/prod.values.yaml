@@ -4,5 +4,5 @@ branch: main
 containerPort: 8765
 domain: moatikon.xquare.app
 language: nodejs
-critical_service: false
+criticalService: false
 buildConfig: '{"node_version":"22.5.1","build_commands":["npm install && npm run build"],"builder":"node","build_dir":"/","command":"npm run start","port":8765}'
