@@ -7,6 +7,8 @@ kind: VirtualService
 metadata:
   name: {{ $fullname }}-domain-ingress
   namespace: {{ $namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.domain }}
   labels:
     app.kubernetes.io/instance: xquare-ingress
     app.kubernetes.io/name: {{ $fullname }}
