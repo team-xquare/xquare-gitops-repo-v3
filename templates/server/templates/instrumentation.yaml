@@ -1,0 +1,20 @@
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: otel-instrumentation-{{ $.Values.club }}-{{ $.Values.environment }}
+  namespace: {{ $namespace }}
+spec:
+  signals:
+    - traces
+    - metrics
+    - logs
+  exporter:
+    endpoint: "http://$(OTEL_NODE_IP):4317"
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
