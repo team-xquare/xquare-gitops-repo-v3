@@ -1,4 +1,5 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogDashboard
 metadata:

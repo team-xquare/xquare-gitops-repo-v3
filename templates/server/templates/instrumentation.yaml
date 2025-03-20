@@ -1,10 +1,10 @@
-{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-
+{ { - $namespace := (printf "%s-%s" .Values.club .Values.environment) } }
+---
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
 metadata:
   name: otel-instrumentation-{{ $.Values.club }}-{{ $.Values.environment }}
-  namespace: {{ $namespace }}
+  namespace: { { $namespace } }
 spec:
   signals:
     - traces
