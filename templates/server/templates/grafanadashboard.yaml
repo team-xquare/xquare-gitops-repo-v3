@@ -1,5 +1,5 @@
 {{- $clubname := .Values.club }}
-
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
