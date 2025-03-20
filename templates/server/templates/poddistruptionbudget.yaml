@@ -1,5 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- if .Values.imageName }}
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
@@ -11,3 +12,4 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ $fullname }}
+{{- end }}
