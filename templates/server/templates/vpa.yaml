@@ -1,5 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- if .Values.imageName }}
 ---
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
@@ -17,3 +18,4 @@ spec:
     containerPolicies:
       - containerName: "*"
         controlledResources: ["memory"]
+{{- end }}

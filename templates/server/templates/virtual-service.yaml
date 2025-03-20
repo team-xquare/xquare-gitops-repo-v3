@@ -1,6 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-
+{{- if .Values.imageName }}
 {{- if not .Values.privateService }}
 ---
 apiVersion: networking.istio.io/v1alpha3
@@ -58,4 +58,5 @@ spec:
           - cache-control
           - connection
         maxAge: "24h"
+{{- end }}
 {{- end }}

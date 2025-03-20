@@ -1,5 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- if .Values.imageName }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -93,3 +94,4 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
             successThreshold: 3
+{{- end }}
