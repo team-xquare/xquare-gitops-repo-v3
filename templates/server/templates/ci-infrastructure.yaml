@@ -1,6 +1,8 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-{{- $githubAppID := "???" }}
+{{- $githubAppID := "<path:secret/data/github/ci-infrastructure#app_id>" }}
+{{- $githubPrivateKey := "<path:secret/data/github/ci-infrastructure#app_private_key>" }}
+{{- $githubToken := "<path:secret/data/github/ci-infrastructure#token>" }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
 {{- $argoEventsHost := "argo-events.xquare.app" }}
 {{- $gitopsRepo := "team-xquare/xquare-gitops-repo-v3" }}
@@ -90,12 +92,6 @@ spec:
                     - name: git-sha
                       value: "{{`{{github.event.after}}`}}"
                 volumes:
-                  - name: docker-config
-                    secret:
-                      secretName: {{ $fullname }}-docker-config
-                      items:
-                        - key: .dockerconfigjson
-                          path: config.json
                   - name: workspace
                     emptyDir: {}
                 templates:
@@ -159,11 +155,12 @@ spec:
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
+                      env:
+                        - name: AWS_SDK_LOAD_CONFIG
+                          value: "true"
                       volumeMounts:
                         - name: workspace
                           mountPath: /workspace
-                        - name: docker-config
-                          mountPath: /kaniko/.docker/
                   
                   - name: update-gitops
                     inputs:
@@ -194,14 +191,14 @@ spec:
                             secretKeyRef:
                               name: {{ $fullname }}-github-token
                               key: token
-                        - name: GITHUB_INSTALLATION_ID
-                          value: "{{ .Values.githubInstallationID }}"
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: {{ $fullname }}-github-webhook-vs
   namespace: {{ $namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ $argoEventsHost }}
 spec:
   hosts:
     - "{{ $argoEventsHost }}"
@@ -222,6 +219,8 @@ kind: ServiceAccount
 metadata:
   name: {{ $fullname }}-workflow-sa
   namespace: {{ $namespace }}
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::786584124104:role/kaniko-ecr-push-role"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -259,7 +258,7 @@ metadata:
   namespace: {{ $namespace }}
 type: Opaque
 data:
-  privateKey.pem: "BASE64_ENCODED_GITHUB_APP_PRIVATE_KEY"
+  privateKey.pem: "{{ $githubPrivateKey | b64enc }}"
 ---
 apiVersion: v1
 kind: Secret
@@ -268,13 +267,4 @@ metadata:
   namespace: {{ $namespace }}
 type: Opaque
 data:
-  token: "BASE64_ENCODED_GITHUB_TOKEN"
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ $fullname }}-docker-config
-  namespace: {{ $namespace }}
-type: kubernetes.io/dockerconfigjson
-data:
-  .dockerconfigjson: "BASE64_ENCODED_DOCKER_CONFIG"
+  token: "{{ $githubToken | b64enc }}"
