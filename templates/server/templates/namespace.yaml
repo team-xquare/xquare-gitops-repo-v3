@@ -1,4 +1,4 @@
-{{ - $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 ---
 apiVersion: v1
 kind: Namespace
