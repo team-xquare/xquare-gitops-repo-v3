@@ -1,0 +1,9 @@
+branch: main
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/*.jar","builder":"gradle","build_dir":"/","build_commands":["npm install && npm run build"]}'
+containerPort: 8080
+critical_service: false
+domain: test22-prod.xquare.app
+githubInstallationID: "62433388"
+language: java
+organization: EntryDSM
+repository: Equus-Config-Server
