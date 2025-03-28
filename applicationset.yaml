@@ -36,7 +36,7 @@ spec:
                 --set environment={{.path.filenameNormalized | trimSuffix ".values.yaml"}}
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+        namespace: '{{index .path.segments 1}}-{{.path.filenameNormalized | trimSuffix ".values.yaml"}}'
       syncPolicy:
         automated:
           prune: true
