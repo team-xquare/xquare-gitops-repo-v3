@@ -30,10 +30,10 @@ spec:
           env:
             - name: HELM_ARGS
               value: >-
-                --values ../../{{.path.path}} 
+                --values ../../{{.path.path}}//{{.path.filename}}
                 --set club={{index .path.segments 1}} 
                 --set name={{index .path.segments 2}} 
-                --set environment={{.path.basenameNormalized | trimSuffix ".values.yaml"}}
+                --set environment={{.path.filename | trimSuffix ".values.yaml"}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
