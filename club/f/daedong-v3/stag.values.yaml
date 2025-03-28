@@ -1,8 +1,0 @@
-organization: Team-jeong-ho-kim
-repository: Daedongyeojido_BE_v3
-branch: null
-containerPort: 0
-domain: .xquare.app
-language: java
-criticalService: false
-buildConfig: '{"jdk_version":17,"output_dir":"dist","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'

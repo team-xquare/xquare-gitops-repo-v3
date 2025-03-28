@@ -1,8 +1,0 @@
-organization: moatikon
-repository: moatikon_backend_v2
-branch: develop
-containerPort: 8764
-domain: moatikon-stag.xquare.app
-language: nodejs
-criticalService: false
-buildConfig: '{"node_version":"22.5.1","build_commands":["npm install && npm run build"],"builder":"node","build_dir":"/","command":"npm run start","port":8764}'
