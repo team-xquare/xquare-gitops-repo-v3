@@ -30,7 +30,7 @@ spec:
           env:
             - name: HELM_ARGS
               value: >-
-                --values ../../{{ .path.path }} 
+                --values ../../{{.path.path}} 
                 --set club={{index .path.segments 1}} 
                 --set name={{index .path.segments 2}} 
                 --set environment={{.path.basenameNormalized | trimSuffix ".values.yaml"}}
