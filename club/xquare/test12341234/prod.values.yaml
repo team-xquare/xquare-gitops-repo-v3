@@ -1,0 +1,9 @@
+branch: feature/vault-aws-kms-auto-unseal
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/asdf.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
+containerPort: 8080
+critical_service: false
+domain: test12341234-prod.xquare.app
+githubInstallationID: "62433388"
+language: java
+organization: team-xquare
+repository: k8s-resource
