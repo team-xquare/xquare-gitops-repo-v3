@@ -14,10 +14,10 @@ spec:
           - path: "club/*/*/*.values.yaml"
   template:
     metadata:
-      name: '{{.path.segments.1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+      name: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       labels:
-        club: "{{.path.segments.1}}"
-        app: "{{.path.segments.2}}"
+        club: "{{index .path.segments 1}}"
+        app: "{{index .path.segments 2}}"
         env: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
     spec:
       project: default
@@ -30,14 +30,14 @@ spec:
             - "../../../{{.path.path}}"
           parameters:
             - name: club
-              value: "{{.path.segments.1}}"
+              value: "{{index .path.segments 1}}"
             - name: name
-              value: "{{.path.segments.2}}"
+              value: "{{index .path.segments 2}}"
             - name: environment
               value: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{.path.segments.1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+        namespace: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
       syncPolicy:
         automated:
           prune: true
