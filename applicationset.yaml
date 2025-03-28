@@ -25,16 +25,15 @@ spec:
         repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
         targetRevision: HEAD
         path: templates/server
-        helm:
-          valueFiles:
-            - "../../../{{.path.path}}"
-          parameters:
-            - name: club
-              value: "{{index .path.segments 1}}"
-            - name: name
-              value: "{{index .path.segments 2}}"
-            - name: environment
-              value: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+        plugin:
+          name: argocd-vault-plugin-helm
+          env:
+            - name: HELM_ARGS
+              value: >-
+                --values ../../{{ .path.path }} 
+                --set club={{index .path.segments 1}} 
+                --set name={{index .path.segments 2}} 
+                --set environment={{.path.basenameNormalized | trimSuffix ".values.yaml"}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
