@@ -1,4 +1,4 @@
-{{ - $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 ---
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
