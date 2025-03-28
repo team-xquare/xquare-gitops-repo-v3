@@ -1,9 +1,0 @@
-organization: EntryDSM
-repository: Equus-Feed
-branch: main
-containerPort: 8080
-domain: equus-feed.xquare.app
-language: java
-criticalService: false
-private_service: true
-buildConfig: '{  "jdk_version": 17,  "output_dir": "/build/libs/Equus-Feed-0.0.1-SNAPSHOT.jar",  "builder": "gradle",  "build_commands": [    "./gradlew build -x test --build-cache"  ]}'

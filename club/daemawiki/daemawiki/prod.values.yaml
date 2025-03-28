@@ -1,7 +1,0 @@
-organization: daemawiki
-repository: Claude
-branch: main
-containerPort: 8080
-domain: daemawiki-server.xquare.app
-language: java
-buildConfig: '{  "jdk_version": 21,  "output_dir": "/build/libs/*.jar",  "builder": "gradle",  "build_commands": [    "./gradlew build -x test --build-cache"  ]}'

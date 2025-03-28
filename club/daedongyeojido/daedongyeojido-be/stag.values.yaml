@@ -1,8 +1,0 @@
-organization: Team-jeong-ho-kim
-repository: -Daedongyeojido_BE_v3.5
-branch: develop
-containerPort: 8080
-domain: daedongyeojido-stag-server.xquare.app
-language: java
-criticalService: false
-buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/daedong-v3_5-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
