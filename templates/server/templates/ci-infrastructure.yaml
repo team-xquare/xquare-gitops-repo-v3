@@ -54,8 +54,8 @@ spec:
           key: privateKey.pem
         appID: {{ $githubAppID }}
         installationID: {{ .Values.githubInstallationID }}
-      owner: {{ .Values.organization }}
-      repository: {{ .Values.repository }}
+      owner: "{{ .Values.organization }}"
+      repository: "{{ .Values.repository }}"
       repositories:
         - owner: {{ .Values.organization }}
           names:
