@@ -31,12 +31,12 @@ metadata:
   namespace: {{ $namespace }}
 spec:
   service:
+    metadata:
+      name: {{ $fullname }}-github-webhook-eventsource-svc
     ports:
       - port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
     type: ClusterIP
-    metadata:
-      name: {{ $fullname }}-github-webhook-eventsource-svc
   github:
     {{ $fullname }}:
       endpoint: /webhooks/{{ $fullname }}
