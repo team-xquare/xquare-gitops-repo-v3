@@ -39,25 +39,25 @@ spec:
       name: {{ $fullname }}-github-webhook-eventsource-svc
   github:
     {{ $fullname }}:
-    endpoint: /webhooks/{{ $fullname }}
-    port: "{{ $webhookPort }}"
-    method: POST
-    url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
-    active: true
-    insecure: true
-    contentType: json
-    events:
-      - push
-    githubApp:
-      privateKey:
-        name: {{ $fullname }}-github-app-pem
-        key: privateKey.pem
-      appID: "{{ $githubAppID }}"
-      installationID: "{{ .Values.githubInstallationID }}"
-    repositories:
-      - owner: {{ .Values.organization }}
-        names:
-          - {{ .Values.repository }}
+      endpoint: /webhooks/{{ $fullname }}
+      port: "{{ $webhookPort }}"
+      method: POST
+      url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
+      active: true
+      insecure: true
+      contentType: json
+      events:
+        - push
+      githubApp:
+        privateKey:
+          name: {{ $fullname }}-github-app-pem
+          key: privateKey.pem
+        appID: "{{ $githubAppID }}"
+        installationID: "{{ .Values.githubInstallationID }}"
+      repositories:
+        - owner: {{ .Values.organization }}
+          names:
+            - {{ .Values.repository }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
