@@ -66,6 +66,11 @@ metadata:
   namespace: {{ $namespace }}
 spec:
   template:
+    tolerations:
+      - key: xquare/ci-server
+        operator: Equal
+        value: 'true'
+        effect: NoSchedule
     serviceAccountName: {{ $fullname }}-workflow-sa
   eventBusName: ci-eventbus
   dependencies:
@@ -92,11 +97,6 @@ spec:
                 namespace: {{ $namespace }}
               spec:
                 serviceAccountName: {{ $fullname }}-workflow-sa
-                tolerations:
-                  - key: xquare/ci-server
-                    operator: Equal
-                    value: 'true'
-                    effect: NoSchedule
                 entrypoint: ci-pipeline
                 arguments:
                   parameters:
