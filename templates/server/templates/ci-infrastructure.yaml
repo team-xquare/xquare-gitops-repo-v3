@@ -1,6 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-{{- $githubAppID := "<path:avp/data/github/ci-infrastructure#app_id>" }}
+{{- $githubAppID := <path:avp/data/github/ci-infrastructure#app_id> }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
 {{- $githubToken := "<path:avp/data/github/ci-infrastructure#token>" }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
