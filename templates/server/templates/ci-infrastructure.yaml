@@ -172,7 +172,7 @@ spec:
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{`{{tasks.build.outputs.parameters.image_name}}`}}"
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{workflow.parameters.git-sha}}`}}"
 
                   - name: docker-build
                     tolerations:
@@ -183,11 +183,6 @@ spec:
                     inputs:
                       parameters:
                         - name: sha
-                    outputs:
-                      parameters:
-                        - name: image_name
-                          valueFrom:
-                            path: /workspace/image_name.txt
                     initContainers:
                       - name: checkout-and-prepare
                         image: python:3.9-alpine
@@ -198,9 +193,6 @@ spec:
                             pip install jinja2-cli
 
                             SHA="{{`{{inputs.parameters.sha}}`}}"
-                            IMG="{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:${SHA}"
-                            echo "$IMG" > /workspace/image_name.txt
-
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             
@@ -228,7 +220,7 @@ spec:
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
-                        - "--destination={{`{{outputs.parameters.image_name}}`}}"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
