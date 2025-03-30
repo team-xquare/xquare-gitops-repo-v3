@@ -18,6 +18,11 @@ spec:
     native:
       replicas: 3
       auth: token
+      tolerations:
+        - key: xquare/ci-server
+          operator: Equal
+          value: 'true'
+          effect: NoSchedule
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -34,25 +39,25 @@ spec:
       name: {{ $fullname }}-github-webhook-eventsource-svc
   github:
     {{ $fullname }}:
-      endpoint: /webhooks/{{ $fullname }}
-      port: "{{ $webhookPort }}"
-      method: POST
-      url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
-      active: true
-      insecure: true
-      contentType: json
-      events:
-        - push
-      githubApp:
-        privateKey:
-          name: {{ $fullname }}-github-app-pem
-          key: privateKey.pem
-        appID: "{{ $githubAppID }}"
-        installationID: "{{ .Values.githubInstallationID }}"
-      repositories:
-        - owner: {{ .Values.organization }}
-          names:
-            - {{ .Values.repository }}
+    endpoint: /webhooks/{{ $fullname }}
+    port: "{{ $webhookPort }}"
+    method: POST
+    url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
+    active: true
+    insecure: true
+    contentType: json
+    events:
+      - push
+    githubApp:
+      privateKey:
+        name: {{ $fullname }}-github-app-pem
+        key: privateKey.pem
+      appID: "{{ $githubAppID }}"
+      installationID: "{{ .Values.githubInstallationID }}"
+    repositories:
+      - owner: {{ .Values.organization }}
+        names:
+          - {{ .Values.repository }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
@@ -86,6 +91,11 @@ spec:
                 namespace: {{ $namespace }}
               spec:
                 serviceAccountName: {{ $fullname }}-workflow-sa
+                tolerations:
+                  - key: xquare/ci-server
+                    operator: Equal
+                    value: 'true'
+                    effect: NoSchedule
                 entrypoint: ci-pipeline
                 arguments:
                   parameters:
@@ -111,7 +121,7 @@ spec:
                             parameters:
                               - name: image-name
                                 value: "{{`{{tasks.build.outputs.parameters.image_name}}`}}"
-                  
+
                   - name: docker-build
                     inputs:
                       parameters:
@@ -129,18 +139,18 @@ spec:
                           - |
                             apk add --no-cache git jq curl
                             pip install jinja2-cli
-                            
+
                             SHA="{{`{{inputs.parameters.sha}}`}}"
                             IMG="{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:${SHA}"
                             echo "$IMG" > /workspace/image_name.txt
-                            
+
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             git checkout $SHA
-                            
+
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
-                            
+
                             curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         volumeMounts:
@@ -161,7 +171,7 @@ spec:
                       volumeMounts:
                         - name: workspace
                           mountPath: /workspace
-                  
+
                   - name: update-gitops
                     inputs:
                       parameters:
