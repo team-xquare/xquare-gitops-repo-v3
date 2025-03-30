@@ -52,7 +52,7 @@ spec:
         privateKey:
           name: {{ $fullname }}-github-app-pem
           key: privateKey.pem
-        appID: {{ $githubAppID | trimAll "\"" }}
+        appID: {{ $githubAppID | trimAll "\'" }}
         installationID: {{ .Values.githubInstallationID }}
       repositories:
         - owner: {{ .Values.organization }}
