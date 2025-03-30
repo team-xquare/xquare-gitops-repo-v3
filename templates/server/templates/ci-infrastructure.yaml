@@ -76,7 +76,8 @@ spec:
         data:
           - path: body.ref
             type: string
-            value: refs/heads/{{ .Values.branch }}
+            value: 
+              - "refs/heads/{{ .Values.branch }}"
   triggers:
     - template:
         name: {{ $fullname }}-workflow-trigger
