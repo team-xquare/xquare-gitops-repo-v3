@@ -7,7 +7,7 @@
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
 {{- $argoEventsHost := "argo-events.xquare.app" }}
 {{- $gitopsRepo := "team-xquare/xquare-gitops-repo-v3" }}
-{{- $webhookPort := "12000" }}
+{{- $webhookPort := 12000 }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
