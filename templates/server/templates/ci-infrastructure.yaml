@@ -62,11 +62,12 @@ spec:
       port: "{{ $webhookPort }}"
       method: POST
   template:
-    tolerations:
-      - key: xquare/ci-server
-        operator: Equal
-        value: 'true'
-        effect: NoSchedule
+    spec:
+      tolerations:
+        - key: xquare/ci-server
+          operator: Equal
+          value: 'true'
+          effect: NoSchedule
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
