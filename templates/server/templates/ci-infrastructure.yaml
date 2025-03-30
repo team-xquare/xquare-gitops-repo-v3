@@ -1,4 +1,5 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $githubFullname := (printf "%s_%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
@@ -38,7 +39,7 @@ spec:
         targetPort: {{ $webhookPort }}
     type: ClusterIP
   github:
-    {{ $fullname }}:
+    {{ $githubFullname }}:
       endpoint: /webhooks/{{ $fullname }}
       port: "{{ $webhookPort }}"
       method: POST
