@@ -24,6 +24,13 @@ spec:
           operator: Equal
           value: 'true'
           effect: NoSchedule
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -43,6 +50,13 @@ spec:
         operator: Equal
         value: 'true'
         effect: NoSchedule
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
   github:
     {{ $githubFullname }}:
       repositories:
@@ -79,6 +93,13 @@ spec:
         value: 'true'
         effect: NoSchedule
     serviceAccountName: {{ $fullname }}-workflow-sa
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi
   eventBusName: ci-eventbus
   dependencies:
     - name: {{ $fullname }}-github-push
@@ -105,6 +126,18 @@ spec:
               spec:
                 serviceAccountName: {{ $fullname }}-workflow-sa
                 entrypoint: ci-pipeline
+                podGC:
+                  strategy: OnPodCompletion
+                podSpecPatch: |
+                  containers:
+                    - name: main
+                      resources:
+                        requests:
+                          cpu: 200m
+                          memory: 256Mi
+                        limits:
+                          cpu: 1000m
+                          memory: 1Gi
                 arguments:
                   parameters:
                     - name: git-sha
@@ -161,6 +194,13 @@ spec:
 
                             curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
+                        resources:
+                          requests:
+                            cpu: 200m
+                            memory: 256Mi
+                          limits:
+                            cpu: 500m
+                            memory: 512Mi
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
@@ -173,6 +213,13 @@ spec:
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
+                      resources:
+                        requests:
+                          cpu: 500m
+                          memory: 1Gi
+                        limits:
+                          cpu: 2000m
+                          memory: 2Gi
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
@@ -203,6 +250,13 @@ spec:
                                 }
                               }
                             }'
+                      resources:
+                        requests:
+                          cpu: 100m
+                          memory: 128Mi
+                        limits:
+                          cpu: 200m
+                          memory: 256Mi
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
