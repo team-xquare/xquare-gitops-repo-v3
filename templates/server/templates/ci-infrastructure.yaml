@@ -106,11 +106,17 @@ spec:
       eventSourceName: {{ $fullname }}-github-webhook
       eventName: {{ $githubFullname }}
       filters:
+        dataLogicalOperator: "or"
         data:
           - path: body.ref
             type: string
-            value: 
+            value:
               - "refs/heads/{{ .Values.branch }}"
+          - path: body.zen
+            type: string
+            template: "{{ `{{ if .Input }} exists {{ else }} missing {{ end }}` }}"
+            value:
+              - "exists"
   triggers:
     - template:
         name: {{ $fullname }}-workflow-trigger
@@ -141,7 +147,7 @@ spec:
                 arguments:
                   parameters:
                     - name: git-sha
-                      value: "{{`{{github.event.after}}`}}"
+                      value: "{{`{{coalesce .Input.body.after \"latest\"}}`}}"
                 volumes:
                   - name: workspace
                     emptyDir: {}
@@ -187,7 +193,10 @@ spec:
 
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
-                            git checkout $SHA
+                            
+                            if [ "$SHA" != "latest" ]; then
+                              git checkout $SHA
+                            fi
 
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
