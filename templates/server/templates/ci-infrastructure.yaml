@@ -104,7 +104,7 @@ spec:
   dependencies:
     - name: {{ $fullname }}-github-push
       eventSourceName: {{ $fullname }}-github-webhook
-      eventName: {{ $fullname }}
+      eventName: {{ $githubFullname }}
       filters:
         data:
           - path: body.ref
