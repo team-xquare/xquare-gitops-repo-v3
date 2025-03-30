@@ -135,6 +135,11 @@ spec:
                 podGC:
                   strategy: OnPodCompletion
                 podSpecPatch: |
+                  tolerations:
+                    - key: xquare/ci-server
+                      operator: Equal
+                      value: 'true'
+                      effect: NoSchedule
                   containers:
                     - name: main
                       resources:
@@ -170,6 +175,11 @@ spec:
                                 value: "{{`{{tasks.build.outputs.parameters.image_name}}`}}"
 
                   - name: docker-build
+                    tolerations:
+                      - key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                        effect: NoSchedule
                     inputs:
                       parameters:
                         - name: sha
@@ -237,6 +247,11 @@ spec:
                           mountPath: /workspace
 
                   - name: update-gitops
+                    tolerations:
+                      - key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                        effect: NoSchedule
                     inputs:
                       parameters:
                         - name: image-name
