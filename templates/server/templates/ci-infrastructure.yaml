@@ -38,12 +38,11 @@ spec:
         targetPort: {{ $webhookPort }}
   eventBusName: ci-eventbus
   template:
-    spec:
-      tolerations:
-        - key: xquare/ci-server
-          operator: Equal
-          value: 'true'
-          effect: NoSchedule
+    tolerations:
+      - key: xquare/ci-server
+        operator: Equal
+        value: 'true'
+        effect: NoSchedule
   github:
     {{ $githubFullname }}:
       repositories:
