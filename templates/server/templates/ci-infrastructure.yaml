@@ -1,6 +1,7 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-{{- $githubAppID := "<path:avp/data/github/ci-infrastructure#app_id>" }}
+{{- $rawAppID := "<path:avp/data/github/ci-infrastructure#app_id>" }}
+{{- $githubAppID := tpl $rawAppID . | int }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
 {{- $githubToken := "<path:avp/data/github/ci-infrastructure#token>" }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
@@ -52,7 +53,7 @@ spec:
         privateKey:
           name: {{ $fullname }}-github-app-pem
           key: privateKey.pem
-        appID: {{ tpl $githubAppID }}
+        appID: {{ $githubAppID }}
         installationID: {{ .Values.githubInstallationID }}
       repositories:
         - owner: {{ .Values.organization }}
