@@ -31,11 +31,6 @@ metadata:
   name: {{ $fullname }}-github-webhook
   namespace: {{ $namespace }}
 spec:
-  tolerations:
-    - key: xquare/ci-server
-      operator: Equal
-      value: 'true'
-      effect: NoSchedule
   service:
     metadata:
       name: {{ $fullname }}-github-webhook-eventsource-svc
@@ -46,26 +41,32 @@ spec:
   eventBusName: ci-eventbus
   github:
     {{ $githubFullname }}:
-      url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
-      active: true
-      insecure: true
-      contentType: json
-      events:
-        - push
-      githubApp:
-        privateKey:
-          name: {{ $fullname }}-github-app-pem
-          key: privateKey.pem
-        appID: {{ $githubAppID }}
-        installationID: {{ .Values.githubInstallationID }}
-      repositories:
-        - owner: {{ .Values.organization }}
-          names:
-            - {{ .Values.repository }}
-      webhook:
-        endpoint: /webhooks/{{ $fullname }}
-        port: "{{ $webhookPort }}"
-        method: POST
+    url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
+    active: true
+    insecure: true
+    contentType: json
+    events:
+      - push
+    githubApp:
+      privateKey:
+        name: {{ $fullname }}-github-app-pem
+        key: privateKey.pem
+      appID: {{ $githubAppID }}
+      installationID: {{ .Values.githubInstallationID }}
+    repositories:
+      - owner: {{ .Values.organization }}
+        names:
+          - {{ .Values.repository }}
+    webhook:
+      endpoint: /webhooks/{{ $fullname }}
+      port: "{{ $webhookPort }}"
+      method: POST
+  template:
+    tolerations:
+      - key: xquare/ci-server
+        operator: Equal
+        value: 'true'
+        effect: NoSchedule
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
