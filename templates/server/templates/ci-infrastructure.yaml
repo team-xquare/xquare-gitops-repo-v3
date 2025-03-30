@@ -38,6 +38,7 @@ spec:
       - port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
     type: ClusterIP
+  eventBusName: ci-eventbus
   github:
     {{ $githubFullname }}:
       url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
