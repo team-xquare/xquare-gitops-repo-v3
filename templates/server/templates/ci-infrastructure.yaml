@@ -31,6 +31,11 @@ metadata:
   name: {{ $fullname }}-github-webhook
   namespace: {{ $namespace }}
 spec:
+  tolerations:
+    - key: xquare/ci-server
+      operator: Equal
+      value: 'true'
+      effect: NoSchedule
   service:
     metadata:
       name: {{ $fullname }}-github-webhook-eventsource-svc
