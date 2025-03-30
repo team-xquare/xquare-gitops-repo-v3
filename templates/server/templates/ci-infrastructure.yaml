@@ -120,8 +120,8 @@ spec:
   triggers:
     - template:
         name: {{ $fullname }}-workflow-trigger
-        argoWorkflow:
-          operation: submit
+        k8s:
+          operation: create
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -152,7 +152,7 @@ spec:
                 arguments:
                   parameters:
                     - name: git-sha
-                      value: "{{`{{coalesce .Input.body.after \"latest\"}}`}}"
+                      value: "{{ `{{ (has .Input.body \"after\") | ternary .Input.body.after \"latest\" }}` }}"
                 volumes:
                   - name: workspace
                     emptyDir: {}
