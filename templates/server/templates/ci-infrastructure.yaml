@@ -73,7 +73,7 @@ spec:
         endpoint: /webhooks/{{ $fullname }}
         port: "{{ $webhookPort }}"
         method: POST
-        url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
+        url: "https://{{ $argoEventsHost }}"
       events:
         - push
       insecure: true
