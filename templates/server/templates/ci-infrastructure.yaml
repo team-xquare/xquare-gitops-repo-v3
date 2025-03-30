@@ -40,9 +40,6 @@ spec:
     type: ClusterIP
   github:
     {{ $githubFullname }}:
-      endpoint: /webhooks/{{ $fullname }}
-      port: "{{ $webhookPort }}"
-      method: POST
       url: "https://{{ $argoEventsHost }}/webhooks/{{ $fullname }}"
       active: true
       insecure: true
@@ -59,6 +56,10 @@ spec:
         - owner: {{ .Values.organization }}
           names:
             - {{ .Values.repository }}
+      webhook:
+        endpoint: /webhooks/{{ $fullname }}
+        port: "{{ $webhookPort }}"
+        method: POST
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
