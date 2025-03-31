@@ -138,20 +138,32 @@ spec:
                 podGC:
                   strategy: OnPodCompletion
                 podSpecPatch: |
-                  tolerations:
-                    - key: xquare/ci-server
-                      operator: Equal
-                      value: 'true'
-                      effect: NoSchedule
+                  initContainers:
+                  - name: init
+                    resources:
+                      requests:
+                        cpu: 100m
+                        memory: 128Mi
+                      limits:
+                        cpu: 300m
+                        memory: 256Mi
                   containers:
-                    - name: main
-                      resources:
-                        limits:
-                          cpu: 500m
-                          memory: 512Mi
-                        requests:
-                          cpu: 100m
-                          memory: 128Mi
+                  - name: wait
+                    resources:
+                      requests:
+                        cpu: 50m
+                        memory: 64Mi
+                      limits:
+                        cpu: 100m
+                        memory: 128Mi
+                  - name: main
+                    resources:
+                      requests:
+                        cpu: 100m
+                        memory: 128Mi
+                      limits:
+                        cpu: 500m
+                        memory: 512Mi
                 serviceAccountName: {{ $fullname }}-workflow-sa
                 templates:
                   - name: ci-pipeline
@@ -173,28 +185,58 @@ spec:
                                 value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.get-sha.outputs.result}}`}}"
                           dependencies: [build, get-sha]
                           template: update-gitops
+
                   - name: get-sha
                     script:
-                      image: alpine:latest
-                      command: [sh]
+                      image: bitnami/git:latest
+                      command: [bash]
                       source: |
-                        #!/bin/sh
+                        #!/bin/bash
                         set -e
-                        apk add --no-cache git
                         git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git repo
                         cd repo
                         git rev-parse HEAD
-                    resources:
-                      limits:
-                        cpu: 100m
-                        memory: 128Mi
-                      requests:
-                        cpu: 50m
-                        memory: 64Mi
+                      resources:
+                        requests:
+                          cpu: 50m
+                          memory: 64Mi
+                        limits:
+                          cpu: 100m
+                          memory: 128Mi
+                    podSpecPatch: |
+                      containers:
+                      - name: main
+                        resources:
+                          requests:
+                            cpu: 50m
+                            memory: 64Mi
+                          limits:
+                            cpu: 100m
+                            memory: 128Mi
+                  
                   - name: docker-build
                     inputs:
                       parameters:
                         - name: sha
+                    podSpecPatch: |
+                      initContainers:
+                      - name: init
+                        resources:
+                          requests:
+                            cpu: 100m
+                            memory: 128Mi
+                          limits:
+                            cpu: 300m
+                            memory: 256Mi
+                      containers:
+                      - name: main
+                        resources:
+                          requests:
+                            cpu: 250m
+                            memory: 512Mi
+                          limits:
+                            cpu: 1000m
+                            memory: 1Gi
                     container:
                       args:
                         - "--context=/workspace/repo"
@@ -208,44 +250,38 @@ spec:
                           value: "true"
                       image: gcr.io/kaniko-project/executor:latest
                       resources:
-                        limits:
-                          cpu: 1000m
-                          memory: 1Gi
                         requests:
                           cpu: 250m
                           memory: 512Mi
+                        limits:
+                          cpu: 1000m
+                          memory: 1Gi
                       volumeMounts:
                         - mountPath: /workspace
                           name: workspace
                     initContainers:
                       - args:
                           - |
-                            apk add --no-cache git jq curl
-                            pip install jinja2-cli
-
-                            # Clone repository
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             
-                            # Checkout specified SHA
                             git checkout {{`{{inputs.parameters.sha}}`}}
                             
-                            # Generate Dockerfile from template
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
                             curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
-                        command: ["/bin/sh", "-c"]
-                        image: python:3.9-alpine
+                        command: ["/bin/bash", "-c"]
+                        image: python:3.9-bullseye
                         name: checkout-and-prepare
                         resources:
-                          limits:
-                            cpu: 300m
-                            memory: 256Mi
                           requests:
                             cpu: 100m
                             memory: 128Mi
+                          limits:
+                            cpu: 300m
+                            memory: 256Mi
                         volumeMounts:
                           - mountPath: /workspace
                             name: workspace
@@ -254,7 +290,11 @@ spec:
                         key: xquare/ci-server
                         operator: Equal
                         value: 'true'
+                  
                   - name: update-gitops
+                    inputs:
+                      parameters:
+                        - name: image-name
                     container:
                       args:
                         - |
@@ -272,7 +312,7 @@ spec:
                                 }
                               }
                             }'
-                      command: [sh, -c]
+                      command: [bash, -c]
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
@@ -281,15 +321,22 @@ spec:
                               name: {{ $fullname }}-github-token
                       image: bitnami/git:latest
                       resources:
-                        limits:
-                          cpu: 100m
-                          memory: 128Mi
                         requests:
                           cpu: 50m
                           memory: 64Mi
-                    inputs:
-                      parameters:
-                        - name: image-name
+                        limits:
+                          cpu: 100m
+                          memory: 128Mi
+                    podSpecPatch: |
+                      containers:
+                      - name: main
+                        resources:
+                          requests:
+                            cpu: 50m
+                            memory: 64Mi
+                          limits:
+                            cpu: 100m
+                            memory: 128Mi
                     tolerations:
                       - effect: NoSchedule
                         key: xquare/ci-server
