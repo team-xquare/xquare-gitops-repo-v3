@@ -115,7 +115,6 @@ spec:
             type: string
             value:
               - "refs/heads/{{ .Values.branch }}"
-        data:
           - path: body.X-GitHub-Event
             type: string
             value:
