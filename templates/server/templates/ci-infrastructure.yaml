@@ -127,11 +127,12 @@ spec:
         k8s:
           operation: create
           parameters:
-            - dest: spec.arguments.parameters.0.value
-              src:
+            - src:
+                dependencyName: github-dep
                 dataKey: body.after
-                dependencyName: {{ $fullname }}-github-push
-              when: "{{ `{{ has .Input.body \"after\" }}` }}"
+                value: "latest"
+                dataTemplate: "{{ `{{ if eq .Input.body.zen \"\" }}{{ .Input.body.after }}{{ else }}latest{{ end }}` }}"
+              dest: spec.arguments.parameters.0.value
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
