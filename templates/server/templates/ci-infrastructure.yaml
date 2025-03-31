@@ -40,49 +40,49 @@ metadata:
   name: {{ $fullname }}-github-webhook
   namespace: {{ $namespace }}
 spec:
+  eventBusName: ci-eventbus
+  github:
+    {{ $githubFullname }}:
+      active: true
+      contentType: json
+      events:
+        - push
+        - ping
+      githubApp:
+        appID: {{ $githubAppID }}
+        installationID: {{ .Values.githubInstallationID }}
+        privateKey:
+          key: privateKey.pem
+          name: {{ $fullname }}-github-app-pem
+      insecure: true
+      repositories:
+        - owner: {{ .Values.organization }}
+          names:
+            - {{ .Values.repository }}
+      webhook:
+        endpoint: /webhooks/{{ $fullname }}
+        method: POST
+        port: "{{ $webhookPort }}"
+        url: "https://{{ $argoEventsHost }}"
   service:
     ports:
       - name: {{ $fullname }}
         port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
-  eventBusName: ci-eventbus
   template:
+    container:
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 30m
+          memory: 64Mi    
     tolerations:
       - key: xquare/ci-server
         operator: Equal
         value: 'true'
         effect: NoSchedule
-    container:
-      resources:
-          requests:
-            cpu: 30m
-            memory: 64Mi
-          limits:
-            cpu: 200m
-            memory: 128Mi    
-  github:
-    {{ $githubFullname }}:
-      repositories:
-        - owner: {{ .Values.organization }}
-          names:
-            - {{ .Values.repository }}
-      githubApp:
-        privateKey:
-          name: {{ $fullname }}-github-app-pem
-          key: privateKey.pem
-        appID: {{ $githubAppID }}
-        installationID: {{ .Values.githubInstallationID }}
-      webhook:
-        endpoint: /webhooks/{{ $fullname }}
-        port: "{{ $webhookPort }}"
-        method: POST
-        url: "https://{{ $argoEventsHost }}"
-      events:
-        - push
-        - ping
-      insecure: true
-      active: true
-      contentType: json
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
@@ -90,28 +90,11 @@ metadata:
   name: {{ $fullname }}-sensor
   namespace: {{ $namespace }}
 spec:
-  template:
-    tolerations:
-      - key: xquare/ci-server
-        operator: Equal
-        value: 'true'
-        effect: NoSchedule
-    serviceAccountName: {{ $fullname }}-workflow-sa
-    container:
-      resources:
-        requests:
-          cpu: 30m
-          memory: 64Mi
-        limits:
-          cpu: 200m
-          memory: 128Mi
-  eventBusName: ci-eventbus
   dependencies:
     - name: {{ $fullname }}-github-push
-      eventSourceName: {{ $fullname }}-github-webhook
       eventName: {{ $githubFullname }}
+      eventSourceName: {{ $fullname }}-github-webhook
       filters:
-        dataLogicalOperator: "or"
         data:
           - path: body.ref
             type: string
@@ -121,11 +104,35 @@ spec:
             type: string
             value:
               - "ping"
+        dataLogicalOperator: "or"
+  eventBusName: ci-eventbus
+  template:
+    container:
+      resources:
+        limits:
+          cpu: 200m
+          memory: 128Mi
+        requests:
+          cpu: 30m
+          memory: 64Mi
+    serviceAccountName: {{ $fullname }}-workflow-sa
+    tolerations:
+      - key: xquare/ci-server
+        operator: Equal
+        value: 'true'
+        effect: NoSchedule
   triggers:
-    - template:
-        name: {{ $fullname }}-workflow-trigger
+    - retryStrategy:
+        steps: 3
+      template:
         k8s:
           operation: create
+          parameters:
+            - dest: spec.arguments.parameters.0.value
+              src:
+                dataKey: body.after
+                dependencyName: {{ $fullname }}-github-push
+              when: "{{ `{{ has .Input.body \"after\" }}` }}"
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -134,7 +141,9 @@ spec:
                 generateName: {{ $fullname }}-ci-
                 namespace: {{ $namespace }}
               spec:
-                serviceAccountName: {{ $fullname }}-workflow-sa
+                arguments:
+                  parameters:
+                    - name: git-sha
                 entrypoint: ci-pipeline
                 podGC:
                   strategy: OnPodCompletion
@@ -147,50 +156,55 @@ spec:
                   containers:
                     - name: main
                       resources:
-                        requests:
-                          cpu: 100m
-                          memory: 128Mi
                         limits:
                           cpu: 500m
                           memory: 512Mi
-                arguments:
-                  parameters:
-                    - name: git-sha
-                volumes:
-                  - name: workspace
-                    emptyDir: {}
+                        requests:
+                          cpu: 100m
+                          memory: 128Mi
+                serviceAccountName: {{ $fullname }}-workflow-sa
                 templates:
                   - name: ci-pipeline
                     dag:
                       tasks:
                         - name: build
-                          template: docker-build
                           arguments:
                             parameters:
                               - name: sha
                                 value: "{{`{{workflow.parameters.git-sha}}`}}"
+                          template: docker-build
                         - name: update-gitops
-                          dependencies: [build]
-                          template: update-gitops
                           arguments:
                             parameters:
                               - name: image-name
                                 value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{workflow.parameters.git-sha}}`}}"
-
+                          dependencies: [build]
+                          template: update-gitops
                   - name: docker-build
-                    tolerations:
-                      - key: xquare/ci-server
-                        operator: Equal
-                        value: 'true'
-                        effect: NoSchedule
-                    inputs:
-                      parameters:
-                        - name: sha
+                    container:
+                      args:
+                        - "--context=/workspace/repo"
+                        - "--dockerfile=/workspace/repo/Dockerfile"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
+                        - "--cache=true"
+                        - "--cache-repo={{ $ecrRegistry }}/cache"
+                      env:
+                        - name: AWS_SDK_LOAD_CONFIG
+                          value: "true"
+                      image: gcr.io/kaniko-project/executor:latest
+                      resources:
+                        limits:
+                          cpu: 1000m
+                          memory: 1Gi
+                        requests:
+                          cpu: 250m
+                          memory: 512Mi
+                      volumeMounts:
+                        - mountPath: /workspace
+                          name: workspace
                     initContainers:
-                      - name: checkout-and-prepare
-                        image: python:3.9-alpine
-                        command: ["/bin/sh", "-c"]
-                        args:
+                      - args:
                           - |
                             apk add --no-cache git jq curl
                             pip install jinja2-cli
@@ -208,51 +222,29 @@ spec:
 
                             curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
+                        command: ["/bin/sh", "-c"]
+                        image: python:3.9-alpine
+                        name: checkout-and-prepare
                         resources:
-                          requests:
-                            cpu: 100m
-                            memory: 128Mi
                           limits:
                             cpu: 300m
                             memory: 256Mi
+                          requests:
+                            cpu: 100m
+                            memory: 128Mi
                         volumeMounts:
-                          - name: workspace
-                            mountPath: /workspace
-                    container:
-                      image: gcr.io/kaniko-project/executor:latest
-                      args:
-                        - "--context=/workspace/repo"
-                        - "--dockerfile=/workspace/repo/Dockerfile"
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
-                        - "--cache=true"
-                        - "--cache-repo={{ $ecrRegistry }}/cache"
-                      resources:
-                        requests:
-                          cpu: 250m
-                          memory: 512Mi
-                        limits:
-                          cpu: 1000m
-                          memory: 1Gi
-                      env:
-                        - name: AWS_SDK_LOAD_CONFIG
-                          value: "true"
-                      volumeMounts:
-                        - name: workspace
-                          mountPath: /workspace
-
-                  - name: update-gitops
-                    tolerations:
-                      - key: xquare/ci-server
-                        operator: Equal
-                        value: 'true'
-                        effect: NoSchedule
+                          - mountPath: /workspace
+                            name: workspace
                     inputs:
                       parameters:
-                        - name: image-name
+                        - name: sha
+                    tolerations:
+                      - effect: NoSchedule
+                        key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                  - name: update-gitops
                     container:
-                      image: bitnami/git:latest
-                      command: [sh, -c]
                       args:
                         - |
                           curl -X POST \
@@ -269,40 +261,46 @@ spec:
                                 }
                               }
                             }'
-                      resources:
-                        requests:
-                          cpu: 50m
-                          memory: 64Mi
-                        limits:
-                          cpu: 100m
-                          memory: 128Mi
+                      command: [sh, -c]
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
                             secretKeyRef:
-                              name: {{ $fullname }}-github-token
                               key: token
-          parameters:
-            - src:
-                dependencyName: {{ $fullname }}-github-push
-                dataKey: body.after
-              dest: spec.arguments.parameters.0.value
-              when: "{{ `{{ has .Input.body \"after\" }}` }}"
-      retryStrategy:
-        steps: 3
+                              name: {{ $fullname }}-github-token
+                      image: bitnami/git:latest
+                      resources:
+                        limits:
+                          cpu: 100m
+                          memory: 128Mi
+                        requests:
+                          cpu: 50m
+                          memory: 64Mi
+                    inputs:
+                      parameters:
+                        - name: image-name
+                    tolerations:
+                      - effect: NoSchedule
+                        key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                volumes:
+                  - emptyDir: {}
+                    name: workspace
+        name: {{ $fullname }}-workflow-trigger
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: {{ $fullname }}-github-webhook-vs
-  namespace: {{ $namespace }}
   annotations:
     external-dns.alpha.kubernetes.io/hostname: {{ $argoEventsHost }}
+  name: {{ $fullname }}-github-webhook-vs
+  namespace: {{ $namespace }}
 spec:
-  hosts:
-    - "{{ $argoEventsHost }}"
   gateways:
     - istio-system/xquare-ingressgateway
+  hosts:
+    - "{{ $argoEventsHost }}"
   http:
     - match:
         - uri:
@@ -316,10 +314,10 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ $fullname }}-workflow-sa
-  namespace: {{ $namespace }}
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::786584124104:role/kaniko-ecr-push-role"
+  name: {{ $fullname }}-workflow-sa
+  namespace: {{ $namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -342,13 +340,13 @@ kind: RoleBinding
 metadata:
   name: {{ $fullname }}-workflow-rolebinding
   namespace: {{ $namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ $fullname }}-workflow-role
 subjects:
   - kind: ServiceAccount
     name: {{ $fullname }}-workflow-sa
-roleRef:
-  kind: Role
-  name: {{ $fullname }}-workflow-role
-  apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: Secret
