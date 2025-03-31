@@ -47,6 +47,7 @@ spec:
       contentType: json
       events:
         - push
+        - ping
       githubApp:
         appID: {{ $githubAppID }}
         installationID: {{ .Values.githubInstallationID }}
