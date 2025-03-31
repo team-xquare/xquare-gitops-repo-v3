@@ -27,11 +27,11 @@ spec:
           effect: NoSchedule
       resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 30m
+          memory: 64Mi
         limits:
-          cpu: 500m
-          memory: 256Mi
+          cpu: 250m
+          memory: 128Mi
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -53,11 +53,11 @@ spec:
         effect: NoSchedule
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 30m
+        memory: 64Mi
       limits:
-        cpu: 300m
-        memory: 256Mi
+        cpu: 200m
+        memory: 128Mi
   github:
     {{ $githubFullname }}:
       repositories:
@@ -97,11 +97,11 @@ spec:
     serviceAccountName: {{ $fullname }}-workflow-sa
     resources:
       requests:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 30m
+        memory: 64Mi
       limits:
-        cpu: 300m
-        memory: 256Mi
+        cpu: 200m
+        memory: 128Mi
   eventBusName: ci-eventbus
   dependencies:
     - name: {{ $fullname }}-github-push
@@ -146,11 +146,11 @@ spec:
                     - name: main
                       resources:
                         requests:
-                          cpu: 200m
-                          memory: 256Mi
+                          cpu: 100m
+                          memory: 128Mi
                         limits:
-                          cpu: 1000m
-                          memory: 1Gi
+                          cpu: 500m
+                          memory: 512Mi
                 arguments:
                   parameters:
                     - name: git-sha
@@ -208,11 +208,11 @@ spec:
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         resources:
                           requests:
-                            cpu: 200m
-                            memory: 256Mi
+                            cpu: 100m
+                            memory: 128Mi
                           limits:
-                            cpu: 500m
-                            memory: 512Mi
+                            cpu: 300m
+                            memory: 256Mi
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
@@ -227,11 +227,11 @@ spec:
                         - "--cache-repo={{ $ecrRegistry }}/cache"
                       resources:
                         requests:
-                          cpu: 500m
-                          memory: 1Gi
+                          cpu: 250m
+                          memory: 512Mi
                         limits:
-                          cpu: 2000m
-                          memory: 2Gi
+                          cpu: 1000m
+                          memory: 1Gi
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
@@ -269,11 +269,11 @@ spec:
                             }'
                       resources:
                         requests:
+                          cpu: 50m
+                          memory: 64Mi
+                        limits:
                           cpu: 100m
                           memory: 128Mi
-                        limits:
-                          cpu: 200m
-                          memory: 256Mi
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
@@ -282,11 +282,10 @@ spec:
                               key: token
           parameters:
             - src:
-                dependencyName: github-dep
+                dependencyName: {{ $fullname }}-github-push
                 dataKey: body.after
-                value: "latest"
-                dataTemplate: "{{ `{{ if eq .Input.body.zen \"\" }}{{ .Input.body.after }}{{ else }}latest{{ end }}` }}"
               dest: spec.arguments.parameters.0.value
+              when: "{{ `{{ has .Input.body \"after\" }}` }}"
       retryStrategy:
         steps: 3
 ---
