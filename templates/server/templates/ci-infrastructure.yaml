@@ -129,8 +129,6 @@ spec:
           parameters:
             - src:
                 dependencyName: github-dep
-                dataKey: body.after
-                value: "latest"
                 dataTemplate: "{{ `{{ if eq .Input.body.zen \"\" }}{{ .Input.body.after }}{{ else }}latest{{ end }}` }}"
               dest: spec.arguments.parameters.0.value
           source:
