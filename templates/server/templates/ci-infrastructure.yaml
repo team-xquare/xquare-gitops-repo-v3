@@ -25,13 +25,14 @@ spec:
           operator: Equal
           value: 'true'
           effect: NoSchedule
-      resources:
-        requests:
-          cpu: 30m
-          memory: 64Mi
-        limits:
-          cpu: 250m
-          memory: 128Mi
+      containerTemplate:
+        resources:
+          requests:
+            cpu: 30m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 128Mi
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
