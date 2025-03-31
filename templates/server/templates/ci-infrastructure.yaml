@@ -126,18 +126,6 @@ spec:
       template:
         k8s:
           operation: create
-          parameters:
-            - src:
-                dependencyName: {{ $fullname }}-github-push
-                dataTemplate: >-
-                  {{ `{{ if has .Input.body "after" }}
-                        {{ .Input.body.after }}
-                      {{ else if has .Input.body "head_commit" }}
-                        {{ .Input.body.head_commit.id }}
-                      {{ else }}
-                        latest
-                      {{ end }}` }}
-              dest: spec.arguments.parameters.0.value
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -146,9 +134,6 @@ spec:
                 generateName: {{ $fullname }}-ci-
                 namespace: {{ $namespace }}
               spec:
-                arguments:
-                  parameters:
-                    - name: git-sha
                 entrypoint: ci-pipeline
                 podGC:
                   strategy: OnPodCompletion
@@ -173,16 +158,12 @@ spec:
                     dag:
                       tasks:
                         - name: build
-                          arguments:
-                            parameters:
-                              - name: sha
-                                value: "{{`{{workflow.parameters.git-sha}}`}}"
                           template: docker-build
                         - name: update-gitops
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{workflow.parameters.git-sha}}`}}"
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.build.outputs.parameters.commit-sha}}`}}"
                           dependencies: [build]
                           template: update-gitops
                   - name: docker-build
@@ -190,7 +171,7 @@ spec:
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{outputs.parameters.commit-sha}}`}}"
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
@@ -208,20 +189,33 @@ spec:
                       volumeMounts:
                         - mountPath: /workspace
                           name: workspace
+                    outputs:
+                      parameters:
+                        - name: commit-sha
+                          valueFrom:
+                            path: /workspace/commit-sha
                     initContainers:
                       - args:
                           - |
                             apk add --no-cache git jq curl
                             pip install jinja2-cli
 
-                            SHA="{{`{{inputs.parameters.sha}}`}}"
+                            # Clone repository
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             
-                            if [ "$SHA" != "latest" ]; then
-                              git checkout $SHA
+                            # Get the latest commit SHA
+                            SHA=$(git rev-parse HEAD)
+                            if [ -z "$SHA" ]; then
+                              echo "Failed to get commit SHA"
+                              exit 1
                             fi
-
+                            echo "Using commit SHA: $SHA"
+                            
+                            # Save SHA for output
+                            echo "$SHA" > /workspace/commit-sha
+                            
+                            # Generate Dockerfile from template
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
@@ -240,9 +234,6 @@ spec:
                         volumeMounts:
                           - mountPath: /workspace
                             name: workspace
-                    inputs:
-                      parameters:
-                        - name: sha
                     tolerations:
                       - effect: NoSchedule
                         key: xquare/ci-server
