@@ -163,7 +163,7 @@ spec:
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.build.outputs.parameters.commit-sha}}`}}"
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:$(cat /workspace/commit-sha)"
                           dependencies: [build]
                           template: update-gitops
                   - name: docker-build
@@ -171,13 +171,17 @@ spec:
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{outputs.parameters.commit-sha}}`}}"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:${COMMIT_SHA}"
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
+                      envFrom:
+                        - configMapFile:
+                            optional: true
+                            name: /workspace/env-vars
                       image: gcr.io/kaniko-project/executor:latest
                       resources:
                         limits:
@@ -189,11 +193,6 @@ spec:
                       volumeMounts:
                         - mountPath: /workspace
                           name: workspace
-                    outputs:
-                      parameters:
-                        - name: commit-sha
-                          valueFrom:
-                            path: /workspace/commit-sha
                     initContainers:
                       - args:
                           - |
@@ -214,6 +213,9 @@ spec:
                             
                             # Save SHA for output
                             echo "$SHA" > /workspace/commit-sha
+                            
+                            # Make SHA available for kaniko
+                            echo "export COMMIT_SHA=$SHA" > /workspace/env-vars
                             
                             # Generate Dockerfile from template
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
