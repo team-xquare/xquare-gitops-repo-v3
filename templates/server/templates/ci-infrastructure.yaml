@@ -15,9 +15,9 @@ metadata:
   name: ci-eventbus
   namespace: {{ $namespace }}
 spec:
+  replicas: 1
   nats:
     native:
-      replicas: 1
       auth: token
       tolerations:
         - key: xquare/ci-server
