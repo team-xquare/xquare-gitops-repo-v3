@@ -46,19 +46,19 @@ spec:
         port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
   eventBusName: ci-eventbus
+  resources:
+    requests:
+      cpu: 30m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
   template:
     tolerations:
       - key: xquare/ci-server
         operator: Equal
         value: 'true'
         effect: NoSchedule
-    resources:
-      requests:
-        cpu: 30m
-        memory: 64Mi
-      limits:
-        cpu: 200m
-        memory: 128Mi
   github:
     {{ $githubFullname }}:
       repositories:
@@ -96,13 +96,14 @@ spec:
         value: 'true'
         effect: NoSchedule
     serviceAccountName: {{ $fullname }}-workflow-sa
-    resources:
-      requests:
-        cpu: 30m
-        memory: 64Mi
-      limits:
-        cpu: 200m
-        memory: 128Mi
+    container:
+      resources:
+        requests:
+          cpu: 30m
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
   eventBusName: ci-eventbus
   dependencies:
     - name: {{ $fullname }}-github-push
