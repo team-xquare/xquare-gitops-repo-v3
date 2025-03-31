@@ -17,7 +17,8 @@ metadata:
 spec:
   nats:
     native:
-      auth: token
+      auth: none
+      antiAffinity: false
       tolerations:
         - key: xquare/ci-server
           operator: Equal
@@ -151,7 +152,7 @@ spec:
                 arguments:
                   parameters:
                     - name: git-sha
-                      value: "{{ `{{ (has .Input.body \"after\") | ternary .Input.body.after \"latest\" }}` }}"
+                      value: "latest"
                 volumes:
                   - name: workspace
                     emptyDir: {}
@@ -278,6 +279,14 @@ spec:
                             secretKeyRef:
                               name: {{ $fullname }}-github-token
                               key: token
+          parameters:
+            - src:
+                dependencyName: {{ $fullname }}-github-push
+                dataKey: body.after
+              dest: spec.arguments.parameters.0.value
+              when: "{{ `{{ has .Input.body \"after\" }}` }}"
+      retryStrategy:
+        steps: 3
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
