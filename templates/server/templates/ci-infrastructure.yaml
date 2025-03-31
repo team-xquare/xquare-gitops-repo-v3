@@ -76,6 +76,7 @@ spec:
         url: "https://{{ $argoEventsHost }}"
       events:
         - push
+        - ping
       insecure: true
       active: true
       contentType: json
@@ -112,11 +113,11 @@ spec:
             type: string
             value:
               - "refs/heads/{{ .Values.branch }}"
-          - path: body.zen
+        data:
+          - path: body.X-GitHub-Event
             type: string
-            template: "{{ `{{ if .Input }} exists {{ else }} missing {{ end }}` }}"
             value:
-              - "exists"
+              - "ping"
   triggers:
     - template:
         name: {{ $fullname }}-workflow-trigger
