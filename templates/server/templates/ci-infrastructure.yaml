@@ -153,7 +153,6 @@ spec:
                 arguments:
                   parameters:
                     - name: git-sha
-                      value: "latest"
                 volumes:
                   - name: workspace
                     emptyDir: {}
@@ -282,10 +281,11 @@ spec:
                               key: token
           parameters:
             - src:
-                dependencyName: {{ $fullname }}-github-push
+                dependencyName: github-dep
                 dataKey: body.after
+                value: "latest"
+                dataTemplate: "{{ `{{ if eq .Input.body.zen \"\" }}{{ .Input.body.after }}{{ else }}latest{{ end }}` }}"
               dest: spec.arguments.parameters.0.value
-              when: "{{ `{{ has .Input.body \"after\" }}` }}"
       retryStrategy:
         steps: 3
 ---
