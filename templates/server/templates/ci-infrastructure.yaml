@@ -17,7 +17,7 @@ metadata:
 spec:
   nats:
     native:
-      replicas: 3
+      replicas: 1
       auth: token
       tolerations:
         - key: xquare/ci-server
