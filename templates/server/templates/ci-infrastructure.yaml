@@ -17,8 +17,9 @@ metadata:
 spec:
   nats:
     native:
-      auth: none
+      replicas: 3 
       antiAffinity: false
+      auth: none
       tolerations:
         - key: xquare/ci-server
           operator: Equal
