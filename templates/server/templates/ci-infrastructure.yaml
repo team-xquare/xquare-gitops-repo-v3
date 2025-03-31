@@ -99,11 +99,11 @@ spec:
             type: string
             value:
               - "refs/heads/{{ .Values.branch }}"
-          - path: body.X-GitHub-Event
-            type: string
-            value:
-              - "ping"
-        dataLogicalOperator: "or"
+        #   - path: body.X-GitHub-Event
+        #     type: string
+        #     value:
+        #       - "ping"
+        # dataLogicalOperator: "or"
   eventBusName: ci-eventbus
   template:
     container:
