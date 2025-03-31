@@ -128,8 +128,16 @@ spec:
           operation: create
           parameters:
             - src:
-                dependencyName: github-dep
-                dataTemplate: "{{ `{{ if eq .Input.body.zen \"\" }}{{ .Input.body.after }}{{ else }}latest{{ end }}` }}"
+                dependencyName: {{ $fullname }}-github-push
+                value: "latest"
+                dataTemplate: >-
+                  {{ `{{ if has .Input.body "after" }}
+                        {{ .Input.body.after }}
+                      {{ else if has .Input.body "head_commit" }}
+                        {{ .Input.body.head_commit.id }}
+                      {{ else }}
+                        latest
+                      {{ end }}` }}
               dest: spec.arguments.parameters.0.value
           source:
             resource:
