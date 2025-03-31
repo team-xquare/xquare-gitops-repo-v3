@@ -46,19 +46,20 @@ spec:
         port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
   eventBusName: ci-eventbus
-  resources:
-    requests:
-      cpu: 30m
-      memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 128Mi
   template:
     tolerations:
       - key: xquare/ci-server
         operator: Equal
         value: 'true'
         effect: NoSchedule
+    container:
+      resources:
+          requests:
+            cpu: 30m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi    
   github:
     {{ $githubFullname }}:
       repositories:
