@@ -157,21 +157,49 @@ spec:
                   - name: ci-pipeline
                     dag:
                       tasks:
+                        - name: get-sha
+                          template: get-sha
                         - name: build
+                          arguments:
+                            parameters:
+                              - name: sha
+                                value: "{{`{{tasks.get-sha.outputs.result}}`}}"
+                          dependencies: [get-sha]
                           template: docker-build
                         - name: update-gitops
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:$(cat /workspace/commit-sha)"
-                          dependencies: [build]
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.get-sha.outputs.result}}`}}"
+                          dependencies: [build, get-sha]
                           template: update-gitops
+                  - name: get-sha
+                    script:
+                      image: alpine:latest
+                      command: [sh]
+                      source: |
+                        #!/bin/sh
+                        set -e
+                        apk add --no-cache git
+                        git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git repo
+                        cd repo
+                        git rev-parse HEAD
+                    resources:
+                      limits:
+                        cpu: 100m
+                        memory: 128Mi
+                      requests:
+                        cpu: 50m
+                        memory: 64Mi
                   - name: docker-build
+                    inputs:
+                      parameters:
+                        - name: sha
                     container:
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:$(cat /workspace/commit-sha)"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
@@ -199,16 +227,8 @@ spec:
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             
-                            # Get the latest commit SHA
-                            SHA=$(git rev-parse HEAD)
-                            if [ -z "$SHA" ]; then
-                              echo "Failed to get commit SHA"
-                              exit 1
-                            fi
-                            echo "Using commit SHA: $SHA"
-                            
-                            # Save SHA for output
-                            echo "$SHA" > /workspace/commit-sha
+                            # Checkout specified SHA
+                            git checkout {{`{{inputs.parameters.sha}}`}}
                             
                             # Generate Dockerfile from template
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
