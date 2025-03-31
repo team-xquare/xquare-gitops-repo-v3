@@ -129,7 +129,6 @@ spec:
           parameters:
             - src:
                 dependencyName: {{ $fullname }}-github-push
-                value: "latest"
                 dataTemplate: >-
                   {{ `{{ if has .Input.body "after" }}
                         {{ .Input.body.after }}
