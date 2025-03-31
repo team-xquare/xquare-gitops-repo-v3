@@ -163,65 +163,22 @@ spec:
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.build.outputs.parameters.commit-sha}}`}}"
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:$(cat /workspace/commit-sha)"
                           dependencies: [build]
                           template: update-gitops
                   - name: docker-build
-                    outputs:
-                      parameters:
-                        - name: commit-sha
-                          valueFrom:
-                            path: /tmp/sha
-                    script:
-                      image: gcr.io/kaniko-project/executor:debug
-                      command: ["/busybox/sh"]
-                      source: |
-                        #!/busybox/sh
-                        set -e
-                        
-                        # Clone repository
-                        cd /tmp
-                        apk add --no-cache git jq curl
-                        git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git repo
-                        cd repo
-                        
-                        # Get the latest commit SHA
-                        SHA=$(git rev-parse HEAD)
-                        if [ -z "$SHA" ]; then
-                          echo "Failed to get commit SHA"
-                          exit 1
-                        fi
-                        echo "Using commit SHA: $SHA"
-                        echo -n "$SHA" > /tmp/sha
-                        
-                        # Generate Dockerfile
-                        echo '{{ .Values.buildConfig }}' > /tmp/config.json
-                        BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
-                        curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template || echo "FROM alpine:latest" > /tmp/template
-                        
-                        # If jinja2 is needed, install it
-                        if grep -q "{%" /tmp/template || grep -q "{{" /tmp/template; then
-                          apk add --no-cache python3 py3-pip
-                          pip3 install jinja2-cli
-                          jinja2 /tmp/template /tmp/config.json > Dockerfile
-                        else
-                          cp /tmp/template Dockerfile
-                        fi
-                        
-                        # Build and push the image
-                        /kaniko/executor \
-                          --context=/tmp/repo \
-                          --dockerfile=/tmp/repo/Dockerfile \
-                          --destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:${SHA} \
-                          --destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest \
-                          --cache=true \
-                          --cache-repo={{ $ecrRegistry }}/cache
+                    container:
+                      args:
+                        - "--context=/workspace/repo"
+                        - "--dockerfile=/workspace/repo/Dockerfile"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:$(cat /workspace/commit-sha)"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
+                        - "--cache=true"
+                        - "--cache-repo={{ $ecrRegistry }}/cache"
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
-                      volumeMounts:
-                        - mountPath: /tmp
-                          name: temp-storage
+                      image: gcr.io/kaniko-project/executor:latest
                       resources:
                         limits:
                           cpu: 1000m
@@ -229,6 +186,49 @@ spec:
                         requests:
                           cpu: 250m
                           memory: 512Mi
+                      volumeMounts:
+                        - mountPath: /workspace
+                          name: workspace
+                    initContainers:
+                      - args:
+                          - |
+                            apk add --no-cache git jq curl
+                            pip install jinja2-cli
+
+                            # Clone repository
+                            git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            cd /workspace/repo
+                            
+                            # Get the latest commit SHA
+                            SHA=$(git rev-parse HEAD)
+                            if [ -z "$SHA" ]; then
+                              echo "Failed to get commit SHA"
+                              exit 1
+                            fi
+                            echo "Using commit SHA: $SHA"
+                            
+                            # Save SHA for output
+                            echo "$SHA" > /workspace/commit-sha
+                            
+                            # Generate Dockerfile from template
+                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+
+                            curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                            jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
+                        command: ["/bin/sh", "-c"]
+                        image: python:3.9-alpine
+                        name: checkout-and-prepare
+                        resources:
+                          limits:
+                            cpu: 300m
+                            memory: 256Mi
+                          requests:
+                            cpu: 100m
+                            memory: 128Mi
+                        volumeMounts:
+                          - mountPath: /workspace
+                            name: workspace
                     tolerations:
                       - effect: NoSchedule
                         key: xquare/ci-server
@@ -277,7 +277,7 @@ spec:
                         value: 'true'
                 volumes:
                   - emptyDir: {}
-                    name: temp-storage
+                    name: workspace
         name: {{ $fullname }}-workflow-trigger
 ---
 apiVersion: networking.istio.io/v1alpha3
