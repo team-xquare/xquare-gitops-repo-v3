@@ -1,9 +1,8 @@
 branch: main
-buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
+buildConfig: '{\"node_version\":20,\"output_dir\":\"build\",\"builder\":\"node_with_nginx\",\"build_dir\":\"/\",\"build_commands\":[\"npm install\",\"npm run build\"]}'
 containerPort: 8080
 critical_service: false
 domain: test321-prod.xquare.app
-githubInstallationID: 62370907
-language: java
+githubInstallationID: 62433388
 organization: team-xquare
 repository: test321
