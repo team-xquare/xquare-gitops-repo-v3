@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
+buildConfig: '{"builder":"gradle","jdk_version":"17","build_dir":"","build_commands":["./gradlew clean build"],"output_dir":"/build/libs","port":8080}'
 containerPort: 8080
 critical_service: false
 domain: maeumgagym-test-prod.xquare.app
