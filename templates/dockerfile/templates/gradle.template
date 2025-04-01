@@ -3,17 +3,25 @@ ENV TZ=Asia/Seoul
 
 WORKDIR /app
 
-COPY . .
+COPY build.gradle* settings.gradle* ./
+COPY buildSrc buildSrc
+COPY gradle gradle
+COPY gradlew .
+
+RUN --mount=type=cache,target=/root/.gradle \
+    chmod +x gradlew && ./gradlew dependencies --no-daemon
+
+COPY src src
 
 {% for command in build_commands %}
 RUN --mount=type=cache,target=/root/.gradle \
-    {{ command }}
+    {{ command }} --no-daemon
 {% endfor %}
 
 FROM amazoncorretto:{{ jdk_version }}
 
 ENV TZ=Asia/Seoul
 
-COPY --from=build /app{{ output_dir }} /app.jar
+COPY --from=build /app{{ output_dir }} /app/app.jar
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
