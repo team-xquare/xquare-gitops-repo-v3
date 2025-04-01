@@ -2,17 +2,12 @@ FROM amazoncorretto:{{ jdk_version }} AS build
 
 WORKDIR /app
 
-COPY {{ build_dir }}/gradle gradle
-COPY {{ build_dir }}/gradlew .
-COPY {{ build_dir }}/settings.gradle* .
-COPY {{ build_dir }}/build.gradle* .
-RUN chmod +x gradlew
-
-RUN ./gradlew dependencies --no-daemon
+COPY {{ build_dir }}/pom.xml .
+RUN mvn dependency:go-offline -B
 
 COPY {{ build_dir }}/src src
 {% for command in build_commands %}
-RUN {{ command }} --no-daemon
+RUN {{ command }}
 {% endfor %}
 
 FROM amazoncorretto:{{ jdk_version }}

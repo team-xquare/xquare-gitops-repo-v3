@@ -1,0 +1,27 @@
+FROM node:{{ node_version }}-alpine AS build
+
+WORKDIR /app
+
+COPY {{ build_dir }}/package*.json ./
+RUN npm ci
+
+COPY {{ build_dir }} .
+{% for command in build_commands %}
+RUN {{ command }}
+{% endfor %}
+
+FROM node:{{ node_version }}-alpine
+
+ENV NODE_ENV=production
+ENV TZ=Asia/Seoul
+
+WORKDIR /app
+
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next ./.next
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/node_modules ./node_modules
+
+EXPOSE {{ port }}
+
+CMD ["npm", "start"]

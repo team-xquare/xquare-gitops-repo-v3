@@ -1,0 +1,8 @@
+{
+  "builder": "flask",
+  "python_version": "3.9",
+  "build_dir": "",
+  "build_commands": ["flask db upgrade"],
+  "app_name": "app",
+  "port": 5000
+}

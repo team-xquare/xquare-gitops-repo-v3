@@ -1,0 +1,21 @@
+FROM golang:{{ go_version }} AS build
+
+WORKDIR /app
+
+COPY {{ build_dir }}/go.mod {{ build_dir }}/go.sum ./
+RUN go mod download
+
+COPY {{ build_dir }} .
+{% for command in build_commands %}
+RUN {{ command }}
+{% endfor %}
+
+FROM gcr.io/distroless/base-debian11
+
+WORKDIR /
+
+COPY --from=build /app{{ output_dir }} /app
+
+EXPOSE {{ port }}
+
+CMD ["/app/{{ binary_name }}"]

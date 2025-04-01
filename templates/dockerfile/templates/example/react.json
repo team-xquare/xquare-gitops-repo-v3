@@ -1,0 +1,8 @@
+{
+  "builder": "react",
+  "node_version": "18",
+  "build_dir": "",
+  "build_commands": ["npm run build"],
+  "output_dir": "/build",
+  "port": 80
+}

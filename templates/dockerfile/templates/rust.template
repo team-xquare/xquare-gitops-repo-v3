@@ -1,0 +1,30 @@
+FROM rust:{{ rust_version }} as build
+
+WORKDIR /app
+
+COPY {{ build_dir }}/Cargo.toml {{ build_dir }}/Cargo.lock ./
+RUN mkdir src && \
+    echo "fn main() {}" > src/main.rs && \
+    cargo build --release && \
+    rm -rf src
+
+COPY {{ build_dir }} .
+{% for command in build_commands %}
+RUN {{ command }}
+{% endfor %}
+
+FROM debian:bullseye-slim
+
+ENV TZ=Asia/Seoul
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=build /app/target/release/{{ binary_name }} /app/
+
+EXPOSE {{ port }}
+
+CMD ["/app/{{ binary_name }}"]

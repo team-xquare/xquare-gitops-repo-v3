@@ -1,0 +1,27 @@
+FROM node:{{ node_version }}-alpine AS build
+
+WORKDIR /app
+
+COPY {{ build_dir }}/package*.json ./
+RUN npm ci
+
+COPY {{ build_dir }} .
+{% for command in build_commands %}
+RUN {{ command }}
+{% endfor %}
+
+FROM nginx:alpine
+
+COPY --from=build /app{{ output_dir }} /usr/share/nginx/html
+RUN echo "server { \
+  listen {{ port }}; \
+  root /usr/share/nginx/html; \
+  index index.html; \
+  location / { \
+    try_files \$uri \$uri/ /index.html =404; \
+  } \
+}" > /etc/nginx/conf.d/default.conf
+
+EXPOSE {{ port }}
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,8 @@
+{
+  "builder": "gradle",
+  "jdk_version": "17",
+  "build_dir": "",
+  "build_commands": ["./gradlew clean build"],
+  "output_dir": "/build/libs",
+  "port": 8080
+}
