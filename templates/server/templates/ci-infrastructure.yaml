@@ -243,7 +243,7 @@ spec:
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
-                            curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         resources:
                           requests:
