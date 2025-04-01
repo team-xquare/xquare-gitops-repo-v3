@@ -1,6 +1,7 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
-{{- if .Values.imageName }}
+{{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
+{{- if .Values.imageTag }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -74,7 +75,7 @@ spec:
       terminationGracePeriodSeconds: 120
       containers:
         - name: {{ $fullname }}
-          image: {{ .Values.imageName }}
+          image: {{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: {{ .Values.containerPort }}
