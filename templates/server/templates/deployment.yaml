@@ -81,6 +81,7 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ $fullname }}
+                optional: true
           resources:
             requests:
               memory: "500Mi"
