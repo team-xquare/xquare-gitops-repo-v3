@@ -63,7 +63,7 @@ spec:
       webhook:
         endpoint: /webhooks/{{ $fullname }}
         method: POST
-        port: "{{ $webhookPort }}"
+        port: {{ $webhookPort }}
         url: "https://{{ $argoEventsHost }}"
   service:
     ports:
