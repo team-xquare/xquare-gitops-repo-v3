@@ -72,12 +72,12 @@ spec:
   template:
     container:
       resources:
-        limits:
-          cpu: 200m
-          memory: 128Mi
         requests:
           cpu: 30m
-          memory: 64Mi    
+          memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi    
     tolerations:
       - key: xquare/ci-server
         operator: Equal
@@ -111,12 +111,12 @@ spec:
   template:
     container:
       resources:
-        limits:
-          cpu: 200m
-          memory: 128Mi
         requests:
           cpu: 30m
           memory: 64Mi
+        limits:
+          cpu: 200m
+          memory: 128Mi
     serviceAccountName: {{ $fullname }}-workflow-sa
     tolerations:
       - key: xquare/ci-server
@@ -213,39 +213,39 @@ spec:
                         - mountPath: /workspace
                           name: workspace
                     initContainers:
-                      args:
-                        - |
-                          apk add --no-cache git jq curl
-                          pip install jinja2-cli
+                      - name: checkout-and-prepare
+                        image: python:3.9-alpine
+                        command: ["/bin/sh", "-c"]
+                        args:
+                          - |
+                            apk add --no-cache git jq curl
+                            pip install jinja2-cli
 
-                          {{- if not $useLatestTag }}
-                          SHA="{{`{{inputs.parameters.sha}}`}}"
-                          {{- end }}
-                          git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
-                          cd /workspace/repo
-                            
-                          {{- if not $useLatestTag }}
-                            git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
-                          {{- end }}
+                            {{- if not $useLatestTag }}
+                            SHA="{{`{{inputs.parameters.sha}}`}}"
+                            {{- end }}
+                            git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            cd /workspace/repo
+                              
+                            {{- if not $useLatestTag }}
+                              git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
+                            {{- end }}
 
-                          echo '{{ .Values.buildConfig }}' > /tmp/config.json
-                          BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
-                          curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
-                          jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
-                      command: ["/bin/sh", "-c"]
-                      image: python:3.9-alpine
-                      name: checkout-and-prepare
-                      resources:
-                        requests:
-                          cpu: 200m
-                          memory: 256Mi
-                        limits:
-                          cpu: 500m
-                          memory: 512Mi
-                      volumeMounts:
-                        - mountPath: /workspace
-                          name: workspace
+                            curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                            jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
+                        resources:
+                          requests:
+                            cpu: 200m
+                            memory: 256Mi
+                          limits:
+                            cpu: 500m
+                            memory: 512Mi
+                        volumeMounts:
+                          - name: workspace
+                            mountPath: /workspace
                   
                   - name: update-gitops
                     tolerations:
@@ -257,6 +257,8 @@ spec:
                       parameters:
                         - name: image-name
                     container:
+                      image: bitnami/git:latest
+                      command: [sh, -c]
                       args:
                         - |
                           curl -X POST \
@@ -273,14 +275,12 @@ spec:
                                 }
                               }
                             }'
-                      command: [sh, -c]
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
                             secretKeyRef:
                               key: token
                               name: {{ $fullname }}-github-token
-                      image: bitnami/git:latest
                       resources:
                         requests:
                           cpu: 100m
@@ -289,22 +289,22 @@ spec:
                           cpu: 300m
                           memory: 256Mi
                 volumes:
-                  - emptyDir: {}
-                    name: workspace
+                  - name: workspace
+                    emptyDir: {}
         name: {{ $fullname }}-workflow-trigger
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  annotations:
-    external-dns.alpha.kubernetes.io/hostname: {{ $argoEventsHost }}
   name: {{ $fullname }}-github-webhook-vs
   namespace: {{ $namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ $argoEventsHost }}
 spec:
-  gateways:
-    - istio-system/xquare-ingressgateway
   hosts:
     - "{{ $argoEventsHost }}"
+  gateways:
+    - istio-system/xquare-ingressgateway
   http:
     - match:
         - uri:
@@ -318,10 +318,10 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::786584124104:role/kaniko-ecr-push-role"
   name: {{ $fullname }}-workflow-sa
   namespace: {{ $namespace }}
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::786584124104:role/kaniko-ecr-push-role"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
