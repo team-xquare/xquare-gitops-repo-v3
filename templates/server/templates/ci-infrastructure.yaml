@@ -152,33 +152,6 @@ spec:
                 entrypoint: ci-pipeline
                 podGC:
                   strategy: OnPodCompletion
-                podSpecPatch: |
-                  initContainers:
-                  - name: init
-                    resources:
-                      requests:
-                        cpu: 100m
-                        memory: 128Mi
-                      limits:
-                        cpu: 300m
-                        memory: 256Mi
-                  containers:
-                  - name: wait
-                    resources:
-                      requests:
-                        cpu: 50m
-                        memory: 64Mi
-                      limits:
-                        cpu: 100m
-                        memory: 128Mi
-                  - name: main
-                    resources:
-                      requests:
-                        cpu: 100m
-                        memory: 128Mi
-                      limits:
-                        cpu: 500m
-                        memory: 512Mi
                 serviceAccountName: {{ $fullname }}-workflow-sa
                 templates:
                   - name: ci-pipeline
@@ -205,30 +178,16 @@ spec:
                           template: update-gitops
                   
                   - name: docker-build
+                    tolerations:
+                      - key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                        effect: NoSchedule
                     {{- if not $useLatestTag }}
                     inputs:
                       parameters:
                         - name: sha
                     {{- end }}
-                    podSpecPatch: |
-                      initContainers:
-                      - name: init
-                        resources:
-                          requests:
-                            cpu: 100m
-                            memory: 128Mi
-                          limits:
-                            cpu: 300m
-                            memory: 256Mi
-                      containers:
-                      - name: main
-                        resources:
-                          requests:
-                            cpu: 250m
-                            memory: 512Mi
-                          limits:
-                            cpu: 1000m
-                            memory: 1Gi
                     container:
                       args:
                         - "--context=/workspace/repo"
@@ -245,57 +204,55 @@ spec:
                       image: gcr.io/kaniko-project/executor:latest
                       resources:
                         requests:
-                          cpu: 250m
-                          memory: 512Mi
-                        limits:
-                          cpu: 1000m
+                          cpu: 500m
                           memory: 1Gi
+                        limits:
+                          cpu: 2
+                          memory: 4Gi
                       volumeMounts:
                         - mountPath: /workspace
                           name: workspace
                     initContainers:
-                      - args:
-                          - |
-                            apk add --no-cache git jq curl
-                            pip install jinja2-cli
+                      args:
+                        - |
+                          apk add --no-cache git jq curl
+                          pip install jinja2-cli
 
-                            {{- if not $useLatestTag }}
-                            SHA="{{`{{inputs.parameters.sha}}`}}"
-                            {{- end }}
-                            git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
-                            cd /workspace/repo
+                          {{- if not $useLatestTag }}
+                          SHA="{{`{{inputs.parameters.sha}}`}}"
+                          {{- end }}
+                          git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                          cd /workspace/repo
                             
-                            {{- if not $useLatestTag }}
-                            if [ "$SHA" != "latest" ]; then
-                              git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
-                            fi
-                            {{- end }}
+                          {{- if not $useLatestTag }}
+                            git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
+                          {{- end }}
 
-                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
-                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+                          echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                          BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
-                            curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
-                            jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
-                        command: ["/bin/sh", "-c"]
-                        image: python:3.9-alpine
-                        name: checkout-and-prepare
-                        resources:
-                          requests:
-                            cpu: 100m
-                            memory: 128Mi
-                          limits:
-                            cpu: 300m
-                            memory: 256Mi
-                        volumeMounts:
-                          - mountPath: /workspace
-                            name: workspace
-                    tolerations:
-                      - effect: NoSchedule
-                        key: xquare/ci-server
-                        operator: Equal
-                        value: 'true'
+                          curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                          jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
+                      command: ["/bin/sh", "-c"]
+                      image: python:3.9-alpine
+                      name: checkout-and-prepare
+                      resources:
+                        requests:
+                          cpu: 200m
+                          memory: 256Mi
+                        limits:
+                          cpu: 500m
+                          memory: 512Mi
+                      volumeMounts:
+                        - mountPath: /workspace
+                          name: workspace
                   
                   - name: update-gitops
+                    tolerations:
+                      - key: xquare/ci-server
+                        operator: Equal
+                        value: 'true'
+                        effect: NoSchedule
                     inputs:
                       parameters:
                         - name: image-name
@@ -326,26 +283,11 @@ spec:
                       image: bitnami/git:latest
                       resources:
                         requests:
-                          cpu: 50m
-                          memory: 64Mi
-                        limits:
                           cpu: 100m
                           memory: 128Mi
-                    podSpecPatch: |
-                      containers:
-                      - name: main
-                        resources:
-                          requests:
-                            cpu: 50m
-                            memory: 64Mi
-                          limits:
-                            cpu: 100m
-                            memory: 128Mi
-                    tolerations:
-                      - effect: NoSchedule
-                        key: xquare/ci-server
-                        operator: Equal
-                        value: 'true'
+                        limits:
+                          cpu: 300m
+                          memory: 256Mi
                 volumes:
                   - emptyDir: {}
                     name: workspace
