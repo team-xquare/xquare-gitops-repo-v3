@@ -269,8 +269,8 @@ spec:
                       parameters:
                         - name: image-name
                     container:
-                      image: bitnami/git:latest
-                      command: [sh, -c]
+                      image: curlimages/curl:latest
+                      command: ["/bin/sh", "-c"]
                       args:
                         - |
                           curl -X POST \
