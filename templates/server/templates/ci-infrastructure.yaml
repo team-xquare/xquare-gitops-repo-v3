@@ -8,7 +8,7 @@
 {{- $argoEventsHost := "argo-events.xquare.app" }}
 {{- $gitopsRepo := "team-xquare/xquare-gitops-repo-v3" }}
 {{- $webhookPort := 12000 }}
-{{- $useLatestTag := empty .Values.imageName }}
+{{- $useLatestTag := empty .Values.imageTag }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
@@ -174,11 +174,11 @@ spec:
                         - name: update-gitops
                           arguments:
                             parameters:
-                              - name: image-name
+                              - name: image-tag
                                 {{- if $useLatestTag }}
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
+                                value: "latest"
                                 {{- else }}
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{workflow.parameters.git-sha}}`}}"
+                                value: "{{`{{workflow.parameters.git-sha}}`}}"
                                 {{- end }}
                           dependencies: [build]
                           template: update-gitops
@@ -267,7 +267,7 @@ spec:
                         effect: NoSchedule
                     inputs:
                       parameters:
-                        - name: image-name
+                        - name: image-tag
                     container:
                       image: curlimages/curl:latest
                       command: ["/bin/sh", "-c"]
@@ -283,7 +283,7 @@ spec:
                                 "path": "{{ .Values.club }}/{{ .Values.name }}/{{ .Values.environment }}",
                                 "action": "apply",
                                 "spec": {
-                                  "imageName": "'"{{`{{inputs.parameters.image-name}}`}}"'"
+                                  "imageTag": "'"{{`{{inputs.parameters.image-tag}}`}}"'"
                                 }
                               }
                             }'
