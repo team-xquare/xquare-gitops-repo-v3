@@ -45,7 +45,7 @@ metadata:
 spec:
   eventBusName: ci-eventbus
   github:
-    {{ $githubFullname }}:
+    # {{ $githubFullname }}:
       active: true
       contentType: json
       events:
