@@ -46,26 +46,26 @@ spec:
   eventBusName: ci-eventbus
   github:
     {{ $githubFullname }}:
-      active: true
-      contentType: json
-      events:
-        - push
-      githubApp:
-        appID: {{ $githubAppID }}
-        installationID: {{ .Values.githubInstallationID }}
-        privateKey:
-          key: privateKey.pem
-          name: {{ $fullname }}-github-app-pem
-      insecure: true
       repositories:
         - owner: {{ .Values.organization }}
           names:
             - {{ .Values.repository }}
+      githubApp:
+        privateKey:
+          name: {{ $fullname }}-github-app-pem
+          key: privateKey.pem
+        appID: {{ $githubAppID }}
+        installationID: {{ .Values.githubInstallationID }}
       webhook:
         endpoint: /webhooks/{{ $fullname }}
-        method: POST
         port: "{{ $webhookPort }}"
+        method: POST
         url: "https://{{ $argoEventsHost }}"
+      events:
+        - push
+      insecure: true
+      active: true
+      contentType: json
   service:
     ports:
       - name: {{ $fullname }}
