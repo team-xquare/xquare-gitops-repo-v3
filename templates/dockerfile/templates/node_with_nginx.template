@@ -27,7 +27,5 @@ try_files \$uri \$uri/ /index.html =404;\
 
 COPY --from=builder /{{ output_dir }} /usr/share/nginx/html
 
-EXPOSE {{ port }}
-
 CMD ["nginx", "-g", "daemon off;"]
 {% endif %}
