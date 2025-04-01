@@ -29,11 +29,11 @@ spec:
       containerTemplate:
         resources:
           requests:
-            cpu: 30m
-            memory: 64Mi
+            cpu: 15m
+            memory: 25Mi
           limits:
-            cpu: 250m
-            memory: 128Mi
+            cpu: 40m
+            memory: 50Mi
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
@@ -73,11 +73,11 @@ spec:
     container:
       resources:
         requests:
-          cpu: 30m
-          memory: 64Mi
+          cpu: 25m
+          memory: 40Mi
         limits:
-          cpu: 200m
-          memory: 128Mi    
+          cpu: 60m
+          memory: 75Mi    
     tolerations:
       - key: xquare/ci-server
         operator: Equal
@@ -112,11 +112,11 @@ spec:
     container:
       resources:
         requests:
-          cpu: 30m
-          memory: 64Mi
+          cpu: 25m
+          memory: 40Mi
         limits:
-          cpu: 200m
-          memory: 128Mi
+          cpu: 60m
+          memory: 75Mi
     serviceAccountName: {{ $fullname }}-workflow-sa
     tolerations:
       - key: xquare/ci-server
@@ -189,6 +189,7 @@ spec:
                         - name: sha
                     {{- end }}
                     container:
+                      image: gcr.io/kaniko-project/executor:latest
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
@@ -201,17 +202,16 @@ spec:
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
-                      image: gcr.io/kaniko-project/executor:latest
                       resources:
                         requests:
-                          cpu: 500m
-                          memory: 1Gi
+                          cpu: 80m
+                          memory: 128Mi
                         limits:
-                          cpu: 2
-                          memory: 4Gi
+                          cpu: 200m
+                          memory: 256Mi
                       volumeMounts:
-                        - mountPath: /workspace
-                          name: workspace
+                        - name: workspace
+                          mountPath: /workspace
                     initContainers:
                       - name: checkout-and-prepare
                         image: python:3.9-alpine
@@ -238,11 +238,11 @@ spec:
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         resources:
                           requests:
-                            cpu: 200m
-                            memory: 256Mi
+                            cpu: 40m
+                            memory: 64Mi
                           limits:
-                            cpu: 500m
-                            memory: 512Mi
+                            cpu: 100m
+                            memory: 128Mi
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
@@ -283,11 +283,11 @@ spec:
                               name: {{ $fullname }}-github-token
                       resources:
                         requests:
-                          cpu: 100m
-                          memory: 128Mi
+                          cpu: 15m
+                          memory: 25Mi
                         limits:
-                          cpu: 300m
-                          memory: 256Mi
+                          cpu: 40m
+                          memory: 50Mi
                 volumes:
                   - name: workspace
                     emptyDir: {}
