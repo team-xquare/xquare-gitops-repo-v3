@@ -283,7 +283,7 @@ spec:
                                 "path": "{{ .Values.club }}/{{ .Values.name }}/{{ .Values.environment }}",
                                 "action": "apply",
                                 "spec": {
-                                  "image_name": "'"{{`{{inputs.parameters.image-name}}`}}"'"
+                                  "imageName": "'"{{`{{inputs.parameters.image-name}}`}}"'"
                                 }
                               }
                             }'
