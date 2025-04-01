@@ -8,6 +8,7 @@
 {{- $argoEventsHost := "argo-events.xquare.app" }}
 {{- $gitopsRepo := "team-xquare/xquare-gitops-repo-v3" }}
 {{- $webhookPort := 12000 }}
+{{- $useLatestTag := empty .Values.imageName }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
@@ -99,10 +100,12 @@ spec:
             type: string
             value:
               - "refs/heads/{{ .Values.branch }}"
+          {{- if $useLatestTag }}
           - path: body.X-GitHub-Event
             type: string
             value:
               - "ping"
+          {{- end }}
         dataLogicalOperator: "or"
   eventBusName: ci-eventbus
   template:
@@ -126,6 +129,13 @@ spec:
       template:
         k8s:
           operation: create
+          {{- if not $useLatestTag }}
+          parameters:
+            - src:
+                dependencyName: {{ $fullname }}-github-push
+                dataKey: body.after
+              dest: spec.arguments.parameters.0.value
+          {{- end }}
           source:
             resource:
               apiVersion: argoproj.io/v1alpha1
@@ -134,6 +144,11 @@ spec:
                 generateName: {{ $fullname }}-ci-
                 namespace: {{ $namespace }}
               spec:
+                {{- if not $useLatestTag }}
+                arguments:
+                  parameters:
+                    - name: git-sha
+                {{- end }}
                 entrypoint: ci-pipeline
                 podGC:
                   strategy: OnPodCompletion
@@ -169,55 +184,32 @@ spec:
                   - name: ci-pipeline
                     dag:
                       tasks:
-                        - name: get-sha
-                          template: get-sha
                         - name: build
+                          {{- if not $useLatestTag }}
                           arguments:
                             parameters:
                               - name: sha
-                                value: "{{`{{tasks.get-sha.outputs.result}}`}}"
-                          dependencies: [get-sha]
+                                value: "{{`{{workflow.parameters.git-sha}}`}}"
+                          {{- end }}
                           template: docker-build
                         - name: update-gitops
                           arguments:
                             parameters:
                               - name: image-name
-                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{tasks.get-sha.outputs.result}}`}}"
-                          dependencies: [build, get-sha]
+                                {{- if $useLatestTag }}
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
+                                {{- else }}
+                                value: "{{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{workflow.parameters.git-sha}}`}}"
+                                {{- end }}
+                          dependencies: [build]
                           template: update-gitops
-
-                  - name: get-sha
-                    script:
-                      image: bitnami/git:latest
-                      command: [bash]
-                      source: |
-                        #!/bin/bash
-                        set -e
-                        git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git repo
-                        cd repo
-                        git rev-parse HEAD
-                      resources:
-                        requests:
-                          cpu: 50m
-                          memory: 64Mi
-                        limits:
-                          cpu: 100m
-                          memory: 128Mi
-                    podSpecPatch: |
-                      containers:
-                      - name: main
-                        resources:
-                          requests:
-                            cpu: 50m
-                            memory: 64Mi
-                          limits:
-                            cpu: 100m
-                            memory: 128Mi
                   
                   - name: docker-build
+                    {{- if not $useLatestTag }}
                     inputs:
                       parameters:
                         - name: sha
+                    {{- end }}
                     podSpecPatch: |
                       initContainers:
                       - name: init
@@ -241,7 +233,9 @@ spec:
                       args:
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
+                        {{- if not $useLatestTag }}
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
+                        {{- end }}
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
@@ -262,18 +256,28 @@ spec:
                     initContainers:
                       - args:
                           - |
+                            apk add --no-cache git jq curl
+                            pip install jinja2-cli
+
+                            {{- if not $useLatestTag }}
+                            SHA="{{`{{inputs.parameters.sha}}`}}"
+                            {{- end }}
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             
-                            git checkout {{`{{inputs.parameters.sha}}`}}
-                            
+                            {{- if not $useLatestTag }}
+                            if [ "$SHA" != "latest" ]; then
+                              git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
+                            fi
+                            {{- end }}
+
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
 
                             curl -s "https://raw.githubusercontent.com/team-xquare/gitops-repo-v3/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
-                        command: ["/bin/bash", "-c"]
-                        image: python:3.9-bullseye
+                        command: ["/bin/sh", "-c"]
+                        image: python:3.9-alpine
                         name: checkout-and-prepare
                         resources:
                           requests:
@@ -312,7 +316,7 @@ spec:
                                 }
                               }
                             }'
-                      command: [bash, -c]
+                      command: [sh, -c]
                       env:
                         - name: GITHUB_TOKEN
                           valueFrom:
