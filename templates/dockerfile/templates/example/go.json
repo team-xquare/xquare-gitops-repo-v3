@@ -1,0 +1,9 @@
+{
+  "builder": "go",
+  "go_version": "1.20",
+  "build_dir": "",
+  "build_commands": ["CGO_ENABLED=0 GOOS=linux go build -o app ."],
+  "output_dir": "/app",
+  "binary_name": "app",
+  "port": 8080
+}

@@ -1,0 +1,32 @@
+FROM python:{{ python_version }} AS build
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY {{ build_dir }}/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY {{ build_dir }} .
+{% for command in build_commands %}
+RUN {{ command }}
+{% endfor %}
+
+FROM python:{{ python_version }}-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV TZ=Asia/Seoul
+ENV FLASK_APP={{ app_name }}.py
+ENV FLASK_ENV=production
+
+WORKDIR /app
+
+COPY --from=build /usr/local/lib/python{{ python_version }}/site-packages /usr/local/lib/python{{ python_version }}/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /app /app
+
+EXPOSE {{ port }}
+
+CMD ["gunicorn", "--bind", "0.0.0.0:{{ port }}", "{{ app_name }}:app"]

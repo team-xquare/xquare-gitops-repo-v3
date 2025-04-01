@@ -1,0 +1,8 @@
+{
+  "builder": "vue",
+  "node_version": "16",
+  "build_dir": "",
+  "build_commands": ["npm run build"],
+  "output_dir": "/dist",
+  "port": 80
+}

@@ -1,0 +1,8 @@
+{
+  "builder": "maven",
+  "jdk_version": "17",
+  "build_dir": "",
+  "build_commands": ["mvn clean package -DskipTests"],
+  "output_dir": "/target/my-app-1.0.jar",
+  "port": 8080
+}

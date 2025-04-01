@@ -1,0 +1,8 @@
+{
+  "builder": "rust",
+  "rust_version": "1.70",
+  "build_dir": "",
+  "build_commands": ["cargo build --release"],
+  "binary_name": "my-app",
+  "port": 8080
+}
