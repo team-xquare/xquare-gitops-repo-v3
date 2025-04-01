@@ -1,5 +1,6 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
-{{- $githubFullname := printf "%s_%s" .Values.name .Values.environment | lower }}
+{{- $name := regexReplaceAll "-" .Values.name "_" }}
+{{- $githubFullname := printf "%s_%s" $name .Values.environment | lower }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
