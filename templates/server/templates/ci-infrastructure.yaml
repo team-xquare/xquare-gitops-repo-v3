@@ -1,6 +1,4 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
-{{- $name := regexReplaceAll "-" .Values.name "_" }}
-{{- $githubFullname := printf "%s_%s" $name .Values.environment | lower }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
@@ -46,7 +44,7 @@ metadata:
 spec:
   eventBusName: ci-eventbus
   github:
-    {{ $githubFullname }}:
+    {{ $fullname }}:
       active: true
       contentType: json
       events:
@@ -97,7 +95,7 @@ metadata:
 spec:
   dependencies:
     - name: {{ $fullname }}-github-push
-      eventName: {{ $githubFullname }}
+      eventName: {{ $fullname }}
       eventSourceName: {{ $fullname }}-github-webhook
       filters:
         data:
