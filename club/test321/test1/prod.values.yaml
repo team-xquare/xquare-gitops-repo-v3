@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"node_version":20,"output_dir":"build","builder":"node_with_nginx","build_dir":"/","build_commands":["npm install","npm run build"]}'
+buildConfig: '{"node_version":20,"output_dir":"build","builder":"node_with_nginx","build_dir":"/","build_commands":["npm install","npm run build"],"port":8080}'
 containerPort: 8080
 critical_service: false
 domain: test321-prod.xquare.app
