@@ -295,11 +295,11 @@ spec:
                               name: {{ $fullname }}-github-token
                       resources:
                         requests:
-                          cpu: 15m
-                          memory: 25Mi
+                          cpu: 1
+                          memory: 7Gi
                         limits:
-                          cpu: 40m
-                          memory: 50Mi
+                          cpu: 2
+                          memory: 8Gi
                 volumes:
                   - name: workspace
                     emptyDir: {}
