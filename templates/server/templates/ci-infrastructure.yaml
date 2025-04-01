@@ -1,6 +1,5 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
-{{- $name := regexReplaceAll "-" .Values.name "_" }}
-{{- $githubFullname := printf "%s_%s" $name .Values.environment | lower }}
+{{- $githubFullname := printf "%s_%s" .Values.name .Values.environment | lower }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
@@ -19,7 +18,7 @@ metadata:
 spec:
   nats:
     native:
-      replicas: 3
+      replicas: 3 
       antiAffinity: false
       auth: none
       tolerations:
@@ -41,8 +40,6 @@ kind: EventSource
 metadata:
   name: {{ $fullname }}-github-webhook
   namespace: {{ $namespace }}
-  annotations:
-    sidecar.istio.io/inject: "false"
 spec:
   eventBusName: ci-eventbus
   github:
@@ -80,7 +77,7 @@ spec:
           memory: 40Mi
         limits:
           cpu: 60m
-          memory: 75Mi
+          memory: 75Mi    
     tolerations:
       - key: xquare/ci-server
         operator: Equal
@@ -92,8 +89,6 @@ kind: Sensor
 metadata:
   name: {{ $fullname }}-sensor
   namespace: {{ $namespace }}
-  annotations:
-    sidecar.istio.io/inject: "false"
 spec:
   dependencies:
     - name: {{ $fullname }}-github-push
@@ -122,7 +117,7 @@ spec:
         limits:
           cpu: 60m
           memory: 75Mi
-    serviceAccountName: kaniko-sa
+    serviceAccountName: {{ $fullname }}-workflow-sa
     tolerations:
       - key: xquare/ci-server
         operator: Equal
@@ -148,8 +143,6 @@ spec:
               metadata:
                 generateName: {{ $fullname }}-ci-
                 namespace: {{ $namespace }}
-                annotations:
-                  sidecar.istio.io/inject: "false"
               spec:
                 {{- if not $useLatestTag }}
                 arguments:
@@ -159,7 +152,7 @@ spec:
                 entrypoint: ci-pipeline
                 podGC:
                   strategy: OnPodCompletion
-                serviceAccountName: kaniko-sa
+                serviceAccountName: {{ $fullname }}-workflow-sa
                 templates:
                   - name: ci-pipeline
                     dag:
@@ -183,11 +176,8 @@ spec:
                                 {{- end }}
                           dependencies: [build]
                           template: update-gitops
-
+                  
                   - name: docker-build
-                    metadata:
-                      annotations:
-                        sidecar.istio.io/inject: "false"
                     tolerations:
                       - key: xquare/ci-server
                         operator: Equal
@@ -236,7 +226,7 @@ spec:
                             {{- end }}
                             git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
-
+                              
                             {{- if not $useLatestTag }}
                               git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
                             {{- end }}
@@ -256,11 +246,8 @@ spec:
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
-
+                  
                   - name: update-gitops
-                    metadata:
-                      annotations:
-                        sidecar.istio.io/inject: "false"
                     tolerations:
                       - key: xquare/ci-server
                         operator: Equal
@@ -331,7 +318,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: kaniko-sa
+  name: {{ $fullname }}-workflow-sa
   namespace: {{ $namespace }}
   annotations:
     eks.amazonaws.com/role-arn: "arn:aws:iam::786584124104:role/kaniko-ecr-push-role"
@@ -344,25 +331,13 @@ metadata:
 rules:
   - apiGroups: [""]
     resources: ["pods", "pods/log"]
-    verbs: ["get", "watch", "patch", "list", "delete"]
+    verbs: ["get", "watch", "patch"]
   - apiGroups: [""]
     resources: ["secrets"]
     verbs: ["get"]
-  - apiGroups: [""]
-    resources: ["configmaps", "persistentvolumeclaims"]
-    verbs: ["get", "list", "watch", "create", "update", "delete", "patch"]
-  - apiGroups: [""]
-    resources: ["events"]
-    verbs: ["create", "patch", "list"]
   - apiGroups: ["argoproj.io"]
-    resources: ["workflows", "workflows/finalizers", "workflowtaskresults"]
-    verbs: ["get", "list", "watch", "update", "patch", "create", "delete"]
-  - apiGroups: ["policy"]
-    resources: ["poddisruptionbudgets"]
-    verbs: ["create", "get", "delete"]
-  - apiGroups: ["coordination.k8s.io"]
-    resources: ["leases"]
-    verbs: ["get", "create", "update", "list"]
+    resources: ["workflows", "workflows/finalizers"]
+    verbs: ["get", "list", "watch", "update", "patch", "create"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -375,7 +350,7 @@ roleRef:
   name: {{ $fullname }}-workflow-role
 subjects:
   - kind: ServiceAccount
-    name: kaniko-sa
+    name: {{ $fullname }}-workflow-sa
 ---
 apiVersion: v1
 kind: Secret
