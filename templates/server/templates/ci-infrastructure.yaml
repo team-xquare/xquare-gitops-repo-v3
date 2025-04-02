@@ -230,39 +230,25 @@ spec:
                           - |
                             set -e
                             apk add --no-cache git jq curl openssl py3-jinja2
+
                             APP_ID={{ $githubAppID }}
                             INSTALL_ID={{ $githubInstallationID }}
-                            
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem
                             chmod 600 /tmp/key.pem
                             now=$(date +%s); iat=$((now-60)); exp=$((now+600))
                             b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
                             header_encoded=$(echo -n '{"typ":"JWT","alg":"RS256"}' | b64enc)
                             payload_encoded=$(echo -n "{\"iat\":${iat},\"exp\":${exp},\"iss\":\"${APP_ID}\"}" | b64enc)
-
-
-
                             JWT="${header_encoded}.${payload_encoded}.$(openssl dgst -sha256 -sign /tmp/key.pem <(echo -n "${header_encoded}.${payload_encoded}") | b64enc)"
-                            
-                            echo "Making GitHub API request with JWT..."
-                            echo "Authorization Header: Bearer ${JWT:0:20}..."
-                            echo "Request URL: https://api.github.com/app/installations/${INSTALL_ID}/access_tokens"
-                            
-                            curl_response=$(curl -v -X POST \
-                              -H "Authorization: Bearer ${JWT}" \
-                              -H "Accept: application/vnd.github+json" \
-                              "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" 2>&1)
-                            
-                            echo "Full curl response:"
-                            echo "$curl_response"
-
                             TOKEN=$(curl -s -X POST -H "Authorization: Bearer ${JWT}" -H "Accept: application/vnd.github+json" "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" | jq -r '.token')
                             [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ] && { echo "ERROR: Failed to get GitHub token"; exit 1; }
+                            
                             git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo || exit 1
                             cd /workspace/repo
                             {{- if not $useLatestTag }}
                             git checkout "{{`{{inputs.parameters.sha}}`}}" || exit 1
                             {{- end }}
+                            
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
                             curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
