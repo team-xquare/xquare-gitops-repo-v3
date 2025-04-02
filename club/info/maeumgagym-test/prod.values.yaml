@@ -1,9 +1,0 @@
-branch: main
-buildConfig: '{"builder":"gradle","jdk_version":"17","build_dir":"","build_commands":["./gradlew clean build"],"output_dir":"/build/libs","port":8080}'
-containerPort: 8080
-critical_service: false
-domain: maeumgagym-test-prod.xquare.app
-githubInstallationID: 62370907
-language: java
-organization: MaeumGaGym
-repository: MaeumGaGym_Backend
