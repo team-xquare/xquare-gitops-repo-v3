@@ -227,22 +227,23 @@ spec:
                         command: ["/bin/sh", "-c"]
                         args:
                           - |
-                            apk add --no-cache git jq curl
-                            pip install jinja2-cli
-
+                            apk add --no-cache git jq curl openssl && pip install requests PyJWT cryptography jinja2-cli
+                            APP_ID={{ $githubAppID }}
+                            INSTALL_ID={{ .Values.githubInstallationID }}
+                            NOW=$(date +%s)
+                            EXPIRY=$((NOW + 600))
+                            cat /github-app/privateKey.pem > /tmp/key.pem
+                            TOKEN=$(python -c "import jwt,time,requests; with open('/tmp/key.pem','rb') as f: key=f.read(); payload={'iat':$NOW-60,'exp':$EXPIRY,'iss':$APP_ID}; jwt_token=jwt.encode(payload,key,'RS256'); resp=requests.post('https://api.github.com/app/installations/$INSTALL_ID/access_tokens',headers={'Authorization':f'Bearer {jwt_token}','Accept':'application/vnd.github+json'}); print(resp.json()['token'] if resp.status_code==201 else exit(1))")
                             {{- if not $useLatestTag }}
                             SHA="{{`{{inputs.parameters.sha}}`}}"
                             {{- end }}
-                            git clone -b {{ .Values.branch }} --single-branch https://github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
-
                             {{- if not $useLatestTag }}
-                              git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
+                            git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
                             {{- end }}
-
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
-
                             curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         resources:
@@ -255,6 +256,8 @@ spec:
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
+                          - name: github-app-key
+                            mountPath: /github-app
 
                   - name: update-gitops
                     metadata:
@@ -303,6 +306,9 @@ spec:
                 volumes:
                   - name: workspace
                     emptyDir: {}
+                  - name: github-app-key
+                    secret:
+                      secretName: {{ $fullname }}-github-app-pem
         name: {{ $fullname }}-workflow-trigger
 ---
 apiVersion: networking.istio.io/v1alpha3
