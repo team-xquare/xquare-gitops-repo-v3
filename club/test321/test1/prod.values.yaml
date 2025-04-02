@@ -6,4 +6,4 @@ domain: test321-prod.xquare.app
 githubInstallationID: 62433388
 organization: team-xquare
 repository: test321
-imageTag: 7de2d99112b353f0011fb6e502fd2dcd9f593da6
+imageTag: 253c07e07e253903ce591461651c783e8359c8cc
