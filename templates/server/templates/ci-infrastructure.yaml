@@ -227,7 +227,6 @@ spec:
                         command: ["/bin/sh", "-c"]
                         args:
                           - |
-                            set -e
                             apk --no-cache --update-cache add git curl jq openssl py3-jinja2
                             APP_ID={{ $githubAppID }}; INSTALL_ID={{ .Values.githubInstallationID }}
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem; chmod 600 /tmp/key.pem
