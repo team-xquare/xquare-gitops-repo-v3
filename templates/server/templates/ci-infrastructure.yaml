@@ -237,6 +237,7 @@ spec:
                             APP_ID={{ $githubAppID }}
                             INSTALL_ID={{ $githubInstallationID }}
 
+                            echo "install_id: {{ $githubInstallationID }}"
                             echo "APP_ID: $APP_ID"
                             echo "INSTALL_ID: $INSTALL_ID"
 
@@ -244,9 +245,6 @@ spec:
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem
                             chmod 600 /tmp/key.pem
                             ls -la /tmp/key.pem
-
-                            echo "Checking if private key is properly written:"
-                            cat /tmp/key.pem | head -3 | tail -1 | grep -q "PRIVATE KEY" && echo "Private key header found" || echo "ERROR: Private key header NOT found"
 
                             echo "Calculating JWT timestamps..."
                             now=$(date +%s)
