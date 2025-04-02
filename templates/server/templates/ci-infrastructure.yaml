@@ -227,26 +227,26 @@ spec:
                         command: ["/bin/sh", "-c"]
                         args:
                           - |
-                            apk --no-cache --update-cache add git curl jq openssl py3-jinja2
+                            set -e
+                            apk add --no-cache git jq curl openssl py3-jinja2
                             APP_ID={{ $githubAppID }}; INSTALL_ID={{ .Values.githubInstallationID }}
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem; chmod 600 /tmp/key.pem
                             now=$(date +%s); iat=$((now-60)); exp=$((now+600))
                             b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
                             header=$(echo -n '{"typ":"JWT","alg":"RS256"}' | b64enc)
                             payload=$(echo -n "{\"iat\":${iat},\"exp\":${exp},\"iss\":${APP_ID}}" | b64enc)
-                            signature=$(openssl dgst -sha256 -sign <(echo -n "${GITHUB_PRIVATE_KEY}") <(echo -n "${header}.${payload}") | b64enc)
-                            JWT="${header}.${payload}.${signature}"
-                            TOKEN=$(curl -s -X POST -H "Authorization: Bearer ${JWT}" -H "Accept: application/vnd.github+json" "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" | jq -r '.token') &
-                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
-                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
-                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2 &
-                            wait
+                            header_payload="${header}.${payload}"
+                            signature=$(openssl dgst -sha256 -sign <(echo -n "${GITHUB_PRIVATE_KEY}") <(echo -n "${header_payload}") | b64enc)
+                            TOKEN=$(curl -s -X POST -H "Authorization: Bearer ${header_payload}.${signature}" -H "Accept: application/vnd.github+json" "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" | jq -r '.token')
                             [ -z "$TOKEN" ] && exit 1
-                            git clone -b {{ .Values.branch }} --single-branch --depth 1 https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             {{- if not $useLatestTag }}
-                            git fetch --depth 1 origin "{{`{{inputs.parameters.sha}}`}}" && git checkout "{{`{{inputs.parameters.sha}}`}}" || exit 1
+                            git checkout "{{`{{inputs.parameters.sha}}`}}" || exit 1
                             {{- end }}
+                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
                             python3 -c "import jinja2; import json; print(jinja2.Template(open('/tmp/template.j2').read()).render(**json.load(open('/tmp/config.json'))))" > /workspace/repo/Dockerfile
                         env:
                           - name: GITHUB_PRIVATE_KEY
