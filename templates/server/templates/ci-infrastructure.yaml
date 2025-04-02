@@ -223,23 +223,35 @@ spec:
                           mountPath: /workspace
                     initContainers:
                       - name: checkout-and-prepare
-                        image: python:3.9-alpine
+                        image: alpine:3.18
                         command: ["/bin/sh", "-c"]
                         args:
                           - |
-                            apk add --no-cache git jq curl openssl && pip install -q requests PyJWT cryptography jinja2-cli
-
+                            apk add --no-cache git jq curl openssl jinja2
                             APP_ID={{ $githubAppID }}; INSTALL_ID={{ .Values.githubInstallationID }}
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem; chmod 600 /tmp/key.pem
-                            TOKEN=$(python3 -c "import jwt,time,requests,sys; try: k=open('/tmp/key.pem','rb').read(); p={'iat':int(time.time())-60,'exp':int(time.time())+600,'iss':$APP_ID}; j=jwt.encode(p,k,'RS256'); h={'Authorization':f'Bearer {j}','Accept':'application/vnd.github+json'}; r=requests.post(f'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens',headers=h); print(r.json()['token'] if r.status_code==201 else sys.exit(1)); except Exception as e: print(f'Error: {e}', file=sys.stderr); sys.exit(1)")
+                            now=$(date +%s)
+                            iat=$((${now} - 60))
+                            exp=$((${now} + 600))
+                            b64enc() { openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'; }
+                            header_json='{"typ":"JWT","alg":"RS256"}'
+                            header=$(echo -n "${header_json}" | b64enc)
+                            payload_json="{\"iat\":${iat},\"exp\":${exp},\"iss\":${APP_ID}}"
+                            payload=$(echo -n "${payload_json}" | b64enc)
+                            header_payload="${header}.${payload}"
+                            signature=$(openssl dgst -sha256 -sign <(echo -n "${GITHUB_PRIVATE_KEY}") <(echo -n "${header_payload}") | b64enc)
+                            JWT="${header_payload}.${signature}"
+                            TOKEN=$(curl -s -X POST -H "Authorization: Bearer ${JWT}" -H "Accept: application/vnd.github+json" "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" | jq -r '.token')
                             [ -z "$TOKEN" ] && exit 1
-                            
                             git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
-
                             {{- if not $useLatestTag }}
                             git checkout "{{`{{inputs.parameters.sha}}`}}" || exit 1
                             {{- end }}
+                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                            jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         env:
                           - name: GITHUB_PRIVATE_KEY
                             valueFrom:
