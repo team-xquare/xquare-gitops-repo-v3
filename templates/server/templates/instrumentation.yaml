@@ -7,7 +7,7 @@ metadata:
   namespace: {{ $namespace }}
 spec:
   exporter:
-    endpoint: "http://0.0.0.0:4317"
+    endpoint: "http://$(OTEL_NODE_IP):4317"
   propagators:
     - tracecontext
     - baggage
