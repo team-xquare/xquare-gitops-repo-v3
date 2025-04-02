@@ -223,26 +223,29 @@ spec:
                           mountPath: /workspace
                     initContainers:
                       - name: checkout-and-prepare
-                        image: python:3.9-slim
+                        image: python:3.9-alpine
                         command: ["/bin/sh", "-c"]
                         args:
                           - |
-                            apt-get update && apt-get install -y --no-install-recommends git curl && pip install --no-cache-dir requests PyJWT cryptography jinja2-cli && apt-get clean && rm -rf /var/lib/apt/lists/*
+                            apk add --no-cache git jq curl openssl && pip install requests PyJWT cryptography jinja2-cli
                             APP_ID={{ $githubAppID }}
                             INSTALL_ID={{ .Values.githubInstallationID }}
                             NOW=$(date +%s)
                             EXPIRY=$((NOW + 600))
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem
-                            TOKEN=$(python -c "import jwt,requests; key=open('/tmp/key.pem','rb').read(); payload={'iat':$NOW-60,'exp':$EXPIRY,'iss':$APP_ID}; jwt_token=jwt.encode(payload,key,'RS256'); resp=requests.post('https://api.github.com/app/installations/$INSTALL_ID/access_tokens',headers={'Authorization':f'Bearer {jwt_token}','Accept':'application/vnd.github+json'}); print(resp.json()['token'] if resp.status_code==201 else exit(1))")
+                            TOKEN=$(python -c "import jwt,time,requests; with open('/tmp/key.pem','rb') as f: key=f.read(); payload={'iat':$NOW-60,'exp':$EXPIRY,'iss':$APP_ID}; jwt_token=jwt.encode(payload,key,'RS256'); resp=requests.post('https://api.github.com/app/installations/$INSTALL_ID/access_tokens',headers={'Authorization':f'Bearer {jwt_token}','Accept':'application/vnd.github+json'}); print(resp.json()['token'] if resp.status_code==201 else exit(1))")
                             {{- if not $useLatestTag }}
                             SHA="{{`{{inputs.parameters.sha}}`}}"
                             {{- end }}
-                            git clone -b {{ .Values.branch }} --single-branch --depth 1 https://${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            git clone -b {{ .Values.branch }} --single-branch https://${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             {{- if not $useLatestTag }}
                             git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
                             {{- end }}
-                            echo '{{ .Values.buildConfig }}' | python -c "import json,sys,requests; config=json.load(sys.stdin); builder=config.get('builder','default'); template=requests.get(f'https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/main/templates/dockerfile/templates/{builder}.template').text if True else 'FROM alpine:latest'; open('/workspace/repo/Dockerfile','w').write(template)"
+                            echo '{{ .Values.buildConfig }}' > /tmp/config.json
+                            BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
+                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                            jinja2 /tmp/template.j2 /tmp/config.json > /workspace/repo/Dockerfile
                         env:
                           - name: GITHUB_PRIVATE_KEY
                             valueFrom:
