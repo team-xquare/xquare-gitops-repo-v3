@@ -237,7 +237,7 @@ spec:
                             {{- if not $useLatestTag }}
                             SHA="{{`{{inputs.parameters.sha}}`}}"
                             {{- end }}
-                            git clone -b {{ .Values.branch }} --single-branch https://${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
+                            git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
                             {{- if not $useLatestTag }}
                             git checkout $SHA || { echo "Failed to checkout SHA: $SHA"; exit 1; }
