@@ -2,6 +2,7 @@
 {{- $githubFullname := printf "%s_%s" .Values.name .Values.environment | replace "-" "_" | lower }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
+{{- $githubInstallationID := .Values.githubInstallationID }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
 {{- $githubToken := "<path:avp/data/github/ci-infrastructure#token>" }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
@@ -55,7 +56,7 @@ spec:
           name: {{ $fullname }}-github-app-pem
           key: privateKey.pem
         appID: {{ $githubAppID }}
-        installationID: {{ .Values.githubInstallationID }}
+        installationID: {{ $githubInstallationID }}
       webhook:
         endpoint: /webhooks/{{ $fullname }}
         port: "{{ $webhookPort }}"
@@ -228,35 +229,35 @@ spec:
                         args:
                           - |
                             set -e
-                            
+
                             echo "--- Starting script execution ---"
                             echo "Installing required packages..."
                             apk add --no-cache git jq curl openssl py3-jinja2
-                            
+
                             APP_ID={{ $githubAppID }}
-                            INSTALL_ID={{ .Values.githubInstallationID }}
-                            
+                            INSTALL_ID={{ $githubInstallationID }}
+
                             echo "APP_ID: $APP_ID"
                             echo "INSTALL_ID: $INSTALL_ID"
-                            
+
                             echo "Setting up private key..."
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem
                             chmod 600 /tmp/key.pem
                             ls -la /tmp/key.pem
-                            
+
                             echo "Checking if private key is properly written:"
                             cat /tmp/key.pem | head -3 | tail -1 | grep -q "PRIVATE KEY" && echo "Private key header found" || echo "ERROR: Private key header NOT found"
-                            
+
                             echo "Calculating JWT timestamps..."
                             now=$(date +%s)
                             iat=$((now-60))
                             exp=$((now+600))
                             echo "Current time: $now, iat: $iat, exp: $exp"
-                            
+
                             b64enc() { 
                               openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d '\n'
                             }
-                            
+
                             echo "Creating JWT header..."
                             header_json='{
                                 "typ":"JWT",
@@ -264,7 +265,7 @@ spec:
                             }'
                             header=$(echo -n "${header_json}" | b64enc)
                             echo "Header (encoded): $header"
-                            
+
                             echo "Creating JWT payload..."
                             payload_json="{
                                 \"iat\":${iat},
@@ -274,15 +275,15 @@ spec:
                             echo "Raw payload: $payload_json"
                             payload=$(echo -n "${payload_json}" | b64enc)
                             echo "Payload (encoded): $payload"
-                            
+
                             echo "Creating JWT signature..."
                             header_payload="${header}.${payload}"
                             echo "Header.Payload: $header_payload"
-                            
+
                             # Attempt to create signature with debug info
                             echo "Testing openssl command functionality..."
                             echo -n "test" | openssl dgst -sha256 && echo "OpenSSL basic test passed" || echo "OpenSSL basic test FAILED"
-                            
+
                             echo "Generating JWT signature..."
                             signature_output=$(openssl dgst -sha256 -sign /tmp/key.pem <(echo -n "${header_payload}") 2>&1)
                             signature_status=$?
@@ -292,24 +293,24 @@ spec:
                             else
                               echo "Signature generation command executed successfully"
                             fi
-                            
+
                             signature=$(openssl dgst -sha256 -sign /tmp/key.pem <(echo -n "${header_payload}") | b64enc)
                             echo "Signature (encoded): ${signature:0:20}..." # Show just the beginning for security
-                            
+
                             echo "Assembling full JWT token..."
                             JWT="${header_payload}.${signature}"
                             echo "JWT token (first 40 chars): ${JWT:0:40}..."
-                            
+
                             echo "Making GitHub API request..."
                             curl_response=$(curl -v -X POST \
                               -H "Authorization: Bearer ${JWT}" \
                               -H "Accept: application/vnd.github+json" \
                               "https://api.github.com/app/installations/${INSTALL_ID}/access_tokens" 2>&1)
                             echo "Curl response: $curl_response"
-                            
+
                             TOKEN=$(echo "$curl_response" | grep -A20 "< HTTP" | jq -r '.token' 2>/dev/null)
                             echo "Extracted token (first 10 chars or 'null'): ${TOKEN:0:10}..."
-                            
+
                             if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
                               echo "ERROR: Failed to get GitHub token, API response:"
                               echo "$curl_response" | grep -A50 "< HTTP"
@@ -317,9 +318,9 @@ spec:
                             else
                               echo "Successfully obtained GitHub token"
                             fi
-                            
+
                             echo "Token: $TOKEN"
-                            
+
                             echo "Cloning repository..."
                             git_clone_output=$(git clone -b {{ .Values.branch }} --single-branch \
                               https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git \
@@ -330,10 +331,10 @@ spec:
                               echo "ERROR: Git clone failed with status $git_clone_status"
                               exit 1
                             fi
-                            
+
                             echo "Changing to repository directory..."
                             cd /workspace/repo || { echo "ERROR: Could not change to repository directory"; exit 1; }
-                            
+
                             {{- if not $useLatestTag }}
                             echo "Checking out specific commit..."
                             git_checkout_output=$(git checkout "{{`{{inputs.parameters.sha}}`}}" 2>&1)
@@ -344,16 +345,16 @@ spec:
                               exit 1
                             fi
                             {{- end }}
-                            
+
                             echo "Creating build config file..."
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             echo "Build config content:"
                             cat /tmp/config.json
-                            
+
                             echo "Determining builder type..."
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
                             echo "Builder: $BUILDER"
-                            
+
                             echo "Fetching Dockerfile template..."
                             curl_template_output=$(curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 2>&1)
                             curl_template_status=$?
@@ -365,7 +366,7 @@ spec:
                             fi
                             echo "Template content:"
                             cat /tmp/template.j2
-                            
+
                             echo "Rendering Dockerfile..."
                             python_output=$(python3 -c "import jinja2; import json; print(jinja2.Template(open('/tmp/template.j2').read()).render(**json.load(open('/tmp/config.json'))))" 2>&1)
                             python_status=$?
@@ -377,7 +378,7 @@ spec:
                               echo "Successfully rendered Dockerfile:"
                               cat /workspace/repo/Dockerfile
                             fi
-                            
+
                             echo "--- Script execution completed ---"
                         env:
                           - name: GITHUB_PRIVATE_KEY
