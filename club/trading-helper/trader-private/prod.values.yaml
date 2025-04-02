@@ -1,0 +1,9 @@
+branch: main
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/Trader-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"]}'
+containerPort: 8080
+critical_service: false
+domain: trader-private-prod.xquare.app
+githubInstallationID: 62374852
+language: java
+organization: HyunSu1768
+repository: Trader
