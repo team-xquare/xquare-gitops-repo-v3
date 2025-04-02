@@ -1,6 +1,6 @@
 branch: main
-buildConfig: '{"node_version":20,"output_dir":"/build","builder":"react","build_dir":".","build_commands":["npm install","npm run build"],"port":80}'
-containerPort: 80
+buildConfig: '{"node_version":20,"output_dir":"/build","builder":"react","build_dir":".","build_commands":["npm install","npm run build"],"port":8080}'
+containerPort: 8080
 critical_service: false
 domain: test321-prod.xquare.app
 githubInstallationID: 62433388
