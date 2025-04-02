@@ -7,3 +7,4 @@ githubInstallationID: 62374852
 language: java
 organization: HyunSu1768
 repository: Trader
+imageTag: latest
