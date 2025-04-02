@@ -1,7 +1,7 @@
 {
   "builder": "nextjs",
   "node_version": "18",
-  "build_dir": "",
+  "build_dir": ".",
   "build_commands": ["npm run build"],
   "output_dir": "",
   "port": 3000
