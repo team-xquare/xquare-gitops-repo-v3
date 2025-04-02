@@ -228,19 +228,18 @@ spec:
                         args:
                           - |
                             apk add --no-cache git jq curl openssl && pip install -q requests PyJWT cryptography jinja2-cli
+
                             APP_ID={{ $githubAppID }}; INSTALL_ID={{ .Values.githubInstallationID }}
+
                             echo "$GITHUB_PRIVATE_KEY" > /tmp/key.pem; chmod 600 /tmp/key.pem
                             TOKEN=$(python3 -c "import jwt,time,requests,sys; try: k=open('/tmp/key.pem','rb').read(); p={'iat':int(time.time())-60,'exp':int(time.time())+600,'iss':$APP_ID}; j=jwt.encode(p,k,'RS256'); h={'Authorization':f'Bearer {j}','Accept':'application/vnd.github+json'}; r=requests.post(f'https://api.github.com/app/installations/{INSTALL_ID}/access_tokens',headers=h); print(r.json()['token'] if r.status_code==201 else sys.exit(1)); except Exception as e: print(f'Error: {e}', file=sys.stderr); sys.exit(1)")
                             [ -z "$TOKEN" ] && exit 1
                             
-                            {{- if not $useLatestTag }}
-                            SHA="{{`{{inputs.parameters.sha}}`}}"
-                            {{- end }}
-                            
                             git clone -b {{ .Values.branch }} --single-branch https://x-access-token:${TOKEN}@github.com/{{ .Values.organization }}/{{ .Values.repository }}.git /workspace/repo
                             cd /workspace/repo
+
                             {{- if not $useLatestTag }}
-                            git checkout $SHA || exit 1
+                            git checkout "{{`{{inputs.parameters.sha}}`}}" || exit 1
                             {{- end }}
                         env:
                           - name: GITHUB_PRIVATE_KEY
