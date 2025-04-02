@@ -2,7 +2,7 @@
 {{- $githubFullname := printf "%s_%s" .Values.name .Values.environment | replace "-" "_" | lower }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $githubAppID := 1172114 }}
-{{- $githubInstallationID := .Values.githubInstallationID }}
+{{- $githubInstallationID := .Values.githubInstallationID | int }}
 {{- $githubPrivateKey := "<path:avp/data/github/ci-infrastructure#app_private_key>" }}
 {{- $githubToken := "<path:avp/data/github/ci-infrastructure#token>" }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
