@@ -53,7 +53,7 @@ spec:
             - {{ .Values.repository }}
       githubApp:
         privateKey:
-          name: {{ $fullname }}-github-app-pem
+          name: github-app-pem
           key: privateKey.pem
         appID: {{ $githubAppID }}
         installationID: {{ $githubInstallationID }}
@@ -257,7 +257,7 @@ spec:
                           - name: GITHUB_PRIVATE_KEY
                             valueFrom:
                               secretKeyRef:
-                                name: {{ $fullname }}-github-app-pem
+                                name: github-app-pem
                                 key: privateKey.pem
                         resources:
                           requests:
@@ -306,7 +306,7 @@ spec:
                           valueFrom:
                             secretKeyRef:
                               key: token
-                              name: {{ $fullname }}-github-token
+                              name: github-token
                       resources:
                         requests:
                           cpu: 15m
@@ -352,7 +352,7 @@ metadata:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ $fullname }}-workflow-role
+  name: ci-workflow-role
   namespace: {{ $namespace }}
 rules:
   - apiGroups: [""]
@@ -380,12 +380,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ $fullname }}-workflow-rolebinding
+  name: ci-workflow-rolebinding
   namespace: {{ $namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ $fullname }}-workflow-role
+  name: ci-workflow-role
 subjects:
   - kind: ServiceAccount
     name: kaniko-sa
@@ -393,7 +393,7 @@ subjects:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ $fullname }}-github-app-pem
+  name: github-app-pem
   namespace: {{ $namespace }}
 type: Opaque
 data:
@@ -402,7 +402,7 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ $fullname }}-github-token
+  name: github-token
   namespace: {{ $namespace }}
 type: Opaque
 data:
