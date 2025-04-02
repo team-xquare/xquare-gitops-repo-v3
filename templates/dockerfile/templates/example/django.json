@@ -1,7 +1,7 @@
 {
   "builder": "django",
   "python_version": "3.10",
-  "build_dir": "",
+  "build_dir": ".",
   "build_commands": ["python manage.py collectstatic --noinput"],
   "project_name": "myproject",
   "port": 8000
