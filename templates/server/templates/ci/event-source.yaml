@@ -1,0 +1,58 @@
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $githubFullname := printf "%s_%s" .Values.name .Values.environment | replace "-" "_" | lower }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- $githubAppID := 1172114 }}
+{{- $githubInstallationID := .Values.githubInstallationID | int }}
+{{- $argoEventsHost := "argo-events.xquare.app" }}
+{{- $webhookPort := 12000 }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: {{ $fullname }}-github-webhook
+  namespace: {{ $namespace }}
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  eventBusName: ci-eventbus
+  github:
+    {{ $githubFullname }}:
+      repositories:
+        - owner: {{ .Values.organization }}
+          names:
+            - {{ .Values.repository }}
+      githubApp:
+        privateKey:
+          name: github-app-pem
+          key: privateKey.pem
+        appID: {{ $githubAppID }}
+        installationID: {{ $githubInstallationID }}
+      webhook:
+        endpoint: /webhooks/{{ $fullname }}
+        port: "{{ $webhookPort }}"
+        method: POST
+        url: "https://{{ $argoEventsHost }}"
+      events:
+        - push
+      insecure: true
+      active: true
+      contentType: json
+  service:
+    ports:
+      - name: {{ $fullname }}
+        port: {{ $webhookPort }}
+        targetPort: {{ $webhookPort }}
+  template:
+    container:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 40Mi
+        limits:
+          cpu: 60m
+          memory: 75Mi
+    tolerations:
+      - key: xquare/ci-server
+        operator: Equal
+        value: 'true'
+        effect: NoSchedule

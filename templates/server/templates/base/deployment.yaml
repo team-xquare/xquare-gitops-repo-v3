@@ -1,6 +1,7 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
 {{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 {{- $ecrRegistry := "786584124104.dkr.ecr.ap-northeast-2.amazonaws.com" }}
+
 {{- if .Values.imageTag }}
 ---
 apiVersion: apps/v1
@@ -43,7 +44,7 @@ spec:
         app.kubernetes.io/name: {{ $fullname }}
         app.kubernetes.io/part-of: {{ .Values.name }}
     spec:
-      serviceAccountName: {{ $fullname }}-account
+      serviceAccountName: {{ $namespace }}-vault-service-account
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
