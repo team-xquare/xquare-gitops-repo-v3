@@ -3,6 +3,6 @@
   "jdk_version": "17",
   "build_dir": ".",
   "build_commands": ["./gradlew clean build"],
-  "output_dir": "/build/libs",
+  "output_dir": "/build/libs/*.jar",
   "port": 8080
 }
