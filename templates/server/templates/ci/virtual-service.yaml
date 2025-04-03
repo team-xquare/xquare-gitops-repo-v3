@@ -1,0 +1,26 @@
+{{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+{{- $argoEventsHost := "argo-events.xquare.app" }}
+{{- $webhookPort := 12000 }}
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullname }}-github-webhook-vs
+  namespace: {{ $namespace }}
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: {{ $argoEventsHost }}
+spec:
+  hosts:
+    - "{{ $argoEventsHost }}"
+  gateways:
+    - istio-system/xquare-ingressgateway
+  http:
+    - match:
+        - uri:
+            prefix: /webhooks/{{ $fullname }}
+      route:
+        - destination:
+            host: {{ $fullname }}-github-webhook-eventsource-svc
+            port:
+              number: {{ $webhookPort }}
