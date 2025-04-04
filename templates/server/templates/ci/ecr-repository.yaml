@@ -8,7 +8,7 @@ metadata:
   annotations:
     services.k8s.aws/region: ap-northeast-2
 spec:
-  repositoryName: {{ $namespace }}/{{ .Values.name }}
+  name: {{ $namespace }}/{{ .Values.name }}
   imageScanningConfiguration:
     scanOnPush: true
   imageTagMutability: MUTABLE
