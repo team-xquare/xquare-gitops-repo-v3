@@ -8,4 +8,4 @@ language: java
 organization: Team-jeong-ho-kim
 port: 8080
 repository: Sillok_BE
-imageTag: a7d1f55daf58fb700db17f3ba5c3a029e134f7bf
+imageTag: 7b158e9cd5b338427655ad082ff2acc4df28cabe
