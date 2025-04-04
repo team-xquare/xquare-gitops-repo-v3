@@ -1,0 +1,21 @@
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+---
+apiVersion: ecr.services.k8s.aws/v1alpha1
+kind: Repository
+metadata:
+  name: {{ .Values.name }}-ecr-repo
+  namespace: {{ $namespace }}
+  annotations:
+    services.k8s.aws/region: ap-northeast-2
+spec:
+  repositoryName: {{ $namespace }}/{{ .Values.name }}
+  imageScanningConfiguration:
+    scanOnPush: true
+  imageTagMutability: MUTABLE
+  tags:
+    - key: Environment
+      value: {{ .Values.environment }}
+    - key: ManagedBy
+      value: ACK
+    - key: Service
+      value: {{ .Values.name }}
