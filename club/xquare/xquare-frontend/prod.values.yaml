@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"builder":"react","node_version":"22","build_dir":"/","build_commands":["npm run build"],"output_dir":"/build","port":80}'
+buildConfig: '{"builder":"react","node_version":"22","build_dir":"/","build_commands":["npm run build"],"output_dir":"/build","port":3000}'
 containerPort: 3000
 critical_service: false
 domain: infra.xquare.app
