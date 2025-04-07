@@ -1,0 +1,10 @@
+branch: develop
+buildConfig: '{"builder":"react","node_version":"22","build_dir":"/","build_commands":["npm run build"],"output_dir":"/build","port":3000}'
+containerPort: 3000
+critical_service: false
+domain: infra-stag.xquare.app
+githubInstallationID: 62433388
+language: react
+organization: team-xquare
+port: 3000
+repository: xquare-frontend-v2
