@@ -8,4 +8,4 @@ language: react
 organization: team-xquare
 port: 3000
 repository: xquare-frontend-v2
-imageTag: d80609580f02f415a79e87d76aaeb3fc161a979a
+imageTag: c12917e75445612a3c67324e40b4ffc66f89fa85
