@@ -8,3 +8,4 @@ language: react
 organization: team-xquare
 port: 3000
 repository: xquare-frontend-v2
+imageTag: latest
