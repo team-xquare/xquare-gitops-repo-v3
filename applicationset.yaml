@@ -14,7 +14,7 @@ spec:
           - path: "club/*/*/*.values.yaml"
   template:
     metadata:
-      name: '{{index .path.segments 1}}-{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+      name: '{{index .path.segments 2}}-{{.path.filenameNormalized | trimSuffix ".values.yaml"}}'
       labels:
         club: "{{index .path.segments 1}}"
         app: "{{index .path.segments 2}}"
