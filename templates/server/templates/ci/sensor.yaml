@@ -184,7 +184,7 @@ spec:
                                 key: privateKey.pem
                         resources:
                           requests:
-                            cpu: 3000m
+                            cpu: 1000m
                             memory: 7G
                           limits:
                             cpu: 2000m
