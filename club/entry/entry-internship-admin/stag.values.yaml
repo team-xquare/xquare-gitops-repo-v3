@@ -1,5 +1,5 @@
 branch: develop
-buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["npm install","yarn nx serve entry-admin"],"output_dir":"/dist","port":4200}'
+buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["yarn install","nx run @entry-internship/entry-admin:build"],"output_dir":"/apps/entry-admin/dist","port":4200}'
 containerPort: 4200
 critical_service: false
 domain: entry-recruit.xquare.app
