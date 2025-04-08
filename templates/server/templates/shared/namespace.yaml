@@ -1,9 +1,9 @@
-# { { - $namespace := (printf "%s-%s" .Values.club .Values.environment) } }
-# ---
-# apiVersion: v1
-# kind: Namespace
-# metadata:
-#   name: { { $namespace } }
-#   labels:
-#     name: { { $namespace } }
-#     istio-injection: enabled
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $namespace }}
+  labels:
+    name: {{ $namespace }}
+    istio-injection: enabled
