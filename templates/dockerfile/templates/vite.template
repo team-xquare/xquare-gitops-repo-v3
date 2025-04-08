@@ -3,8 +3,6 @@ FROM node:{{ node_version }}-alpine AS build
 WORKDIR /app
 
 COPY {{ build_dir }}/package*.json ./
-RUN npm install
-RUN npm ci
 
 COPY {{ build_dir }} .
 {% for command in build_commands %}
