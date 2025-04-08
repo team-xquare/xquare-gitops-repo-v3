@@ -121,15 +121,16 @@ spec:
                     container:
                       image: gcr.io/kaniko-project/executor:latest
                       args:
-                        - "--snapshotMode=redo"
                         - "--context=/workspace/repo"
                         - "--dockerfile=/workspace/repo/Dockerfile"
+                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         {{- if not $useLatestTag }}
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{`{{inputs.parameters.sha}}`}}"
                         {{- end }}
-                        - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
+                        - "--compressed-caching=false"
+                        - "--snapshotMode=timeout"
                         - "--cleanup"
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
