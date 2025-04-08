@@ -3,7 +3,7 @@ buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_comma
 containerPort: 4200
 critical_service: false
 domain: entry-recruit.xquare.app
-githubInstallationID: 62374852
+githubInstallationID: 62368670
 language: vite
 organization: EntryDSM
 port: 4200
