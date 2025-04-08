@@ -130,7 +130,7 @@ spec:
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
                         - "--compressed-caching=false"
-                        - "--snapshotMode=timeout"
+                        - "--snapshotMode=time"
                         - "--cleanup"
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
