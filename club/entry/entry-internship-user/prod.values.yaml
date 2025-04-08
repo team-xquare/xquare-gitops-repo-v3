@@ -1,0 +1,10 @@
+branch: develop
+buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["yarn install && npx nx run @entry-internship/entry-user:build"],"output_dir":"/apps/entry-user/dist","port":4200}'
+containerPort: 4200
+critical_service: false
+domain: entry-recruit.xquare.app
+githubInstallationID: 62374852
+language: vite
+organization: EntryDSM
+port: 4200
+repository: Entry-Internship
