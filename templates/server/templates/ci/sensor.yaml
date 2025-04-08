@@ -137,9 +137,11 @@ spec:
                         requests:
                           cpu: 2
                           memory: 10Gi
+                          ephemeral-storage: "1Gi"
                         limits:
                           cpu: 2
                           memory: 11Gi
+                          ephemeral-storage: "2Gi"
                       volumeMounts:
                         - name: workspace
                           mountPath: /workspace
