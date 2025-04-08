@@ -6,6 +6,5 @@ domain: sillok-api.xquare.app
 githubInstallationID: 63841363
 language: java
 organization: Team-jeong-ho-kim
-port: 8080
 repository: Sillok_BE
 imageTag: d50ca5b56ab9e8d6a9d8e673e059f21ca42a75d9
