@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY {{ build_dir }}/package*.json ./
 
+RUN npm ci
+
 COPY {{ build_dir }} .
 {% for command in build_commands %}
 RUN {{ command }}
