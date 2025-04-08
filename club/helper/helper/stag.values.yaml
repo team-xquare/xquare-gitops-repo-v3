@@ -1,0 +1,9 @@
+organization: Team-LoopCat
+repository: Helper_Backend
+branch: develop
+containerPort: 8080
+domain: helper-stag.xquare.app
+language: java
+criticalService: false
+buildConfig: '{"builder":"gradle","jdk_version":17,"build_dir":"/","build_commands":["./gradlew build -x test"],"output_dir":"/helper-infrastructure/build/libs/helper-infrastructure-0.0.1-SNAPSHOT.jar","port":8080}'
+githubInstallationID: 64110152

@@ -1,0 +1,9 @@
+organization: Eunho0922
+repository: DSM_Fresh_Backend
+branch: main
+containerPort: 3000
+domain: dsm-freshman-server.xquare.app
+language: nodejs
+criticalService: false
+buildConfig: '{"builder":"nodejs","node_version":"22.5.1","build_dir":"/","build_commands":["npm install && npm run build"],"output_dir":"/dist","port":3000}'
+githubInstallationID: 64109474
