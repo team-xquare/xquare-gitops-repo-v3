@@ -6,6 +6,5 @@ domain: bootrader-prod.xquare.app
 githubInstallationID: 62374852
 language: java
 organization: HyunSu1768
-port: 8080
 repository: BooTrader
 imageTag: latest

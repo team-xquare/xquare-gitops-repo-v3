@@ -6,6 +6,5 @@ domain: infra-stag.xquare.app
 githubInstallationID: 62433388
 language: react
 organization: team-xquare
-port: 3000
 repository: xquare-frontend-v2
 imageTag: e0fea6b5e211816dd7956861b39d711a7a3d1973
