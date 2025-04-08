@@ -184,11 +184,11 @@ spec:
                                 key: privateKey.pem
                         resources:
                           requests:
-                            cpu: 40m
-                            memory: 64Mi
+                            cpu: 3000m
+                            memory: 7G
                           limits:
-                            cpu: 100m
-                            memory: 128Mi
+                            cpu: 2000m
+                            memory: 8G
                         volumeMounts:
                           - name: workspace
                             mountPath: /workspace
