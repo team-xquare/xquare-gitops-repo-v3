@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/BooTrader-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":".","build_commands":["./gradlew build -x test"], "port":8080}'
+buildConfig: '{"builder":"gradle","jdk_version":17,"build_dir":".","build_commands":["./gradlew build -x test"],"output_dir":"/build/libs/BooTrader-0.0.1-SNAPSHOT.jar","port":8080}'
 containerPort: 8080
 criticalService: false
 domain: bootrader-prod.xquare.app
