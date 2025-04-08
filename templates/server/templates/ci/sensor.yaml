@@ -135,12 +135,12 @@ spec:
                           value: "true"
                       resources:
                         requests:
-                          cpu: 2
-                          memory: 10Gi
+                          cpu: 1
+                          memory: 7Gi
                           ephemeral-storage: "1Gi"
                         limits:
                           cpu: 2
-                          memory: 11Gi
+                          memory: 8Gi
                           ephemeral-storage: "2Gi"
                       volumeMounts:
                         - name: workspace
