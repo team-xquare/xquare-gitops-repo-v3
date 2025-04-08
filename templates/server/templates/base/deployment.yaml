@@ -90,7 +90,7 @@ spec:
               cpu: "20m"
               ephemeral-storage: "20Mi"
             limits:
-              memory: "2Gi"
+              memory: "1Gi"
           readinessProbe:
             tcpSocket:
               port: {{ .Values.containerPort }}
