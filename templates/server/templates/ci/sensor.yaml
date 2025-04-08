@@ -130,6 +130,7 @@ spec:
                         - "--destination={{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:latest"
                         - "--cache=true"
                         - "--cache-repo={{ $ecrRegistry }}/cache"
+                        - "--cleanup"
                       env:
                         - name: AWS_SDK_LOAD_CONFIG
                           value: "true"
