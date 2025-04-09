@@ -1,5 +1,7 @@
 FROM node:{{ node_version }} AS build
 
+WORKDIR /app
+
 COPY . .
 
 {% for command in build_commands %}
@@ -8,7 +10,9 @@ RUN {{ command }}
 
 FROM node:{{ node_version }}
 
-COPY --from=build . .
+WORKDIR /app
+
+COPY --from=build /app .
 
 EXPOSE {{ port }}
 
