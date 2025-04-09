@@ -4,3 +4,9 @@
 club: ""
 nameOverride: ""
 fullnameOverride: ""
+
+# Environments configuration
+environments:
+  # Will be populated dynamically based on existing values files
+  stag: false
+  prod: false
