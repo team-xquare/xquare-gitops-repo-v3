@@ -7,3 +7,4 @@ language: javascript
 criticalService: false
 buildConfig: '{"builder":"nodejs","node_version":"22.5.1","build_dir":"/","build_commands":["yarn && yarn build"],"output_dir":"/dist","port":3000}'
 githubInstallationID: 64110126
+imageTag: latest
