@@ -5,6 +5,8 @@ WORKDIR /app
 COPY {{ build_dir }}/ .
 RUN chmod +x gradlew
 
+ENV KOTLIN_COMPILER_EXECUTION_STRATEGY="in-process"
+
 {% for command in build_commands %}
 RUN {{ command }} --no-daemon
 {% endfor %}
