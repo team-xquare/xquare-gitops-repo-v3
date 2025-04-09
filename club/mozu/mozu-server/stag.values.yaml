@@ -7,3 +7,4 @@ language: nodejs
 criticalService: false
 buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","port":3000,"output_dir":"/dist"}'
 githubInstallationID: 64125603
+imageTag: latest
