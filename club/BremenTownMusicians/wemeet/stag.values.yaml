@@ -1,0 +1,10 @@
+branch: main
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/*.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew clean -x build"],"port":8080}'
+containerPort: 8080
+criticalService: false
+domain: wemeet-prod.xquare.app
+githubInstallationID: 64195567
+language: java
+organization: BremenMusicians
+port: 8080
+repository: WeMeet_BE
