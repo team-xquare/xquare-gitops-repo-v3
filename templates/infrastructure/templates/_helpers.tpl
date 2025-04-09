@@ -14,3 +14,14 @@
 {{- define "infrastructure.namespace" -}}
 {{- .Values.club }}
 {{- end }}
+
+{{- define "infrastructure.namespaces" -}}
+{{- $namespaces := list }}
+{{- if .Values.environments.stag }}
+{{- $namespaces = append $namespaces (printf "%s-stag" .Values.club) }}
+{{- end }}
+{{- if .Values.environments.prod }}
+{{- $namespaces = append $namespaces (printf "%s-prod" .Values.club) }}
+{{- end }}
+{{- join "," $namespaces }}
+{{- end }}
