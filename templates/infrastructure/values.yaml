@@ -1,0 +1,6 @@
+# Default values for infrastructure chart
+# This is a YAML-formatted file.
+
+club: ""
+nameOverride: ""
+fullnameOverride: ""
