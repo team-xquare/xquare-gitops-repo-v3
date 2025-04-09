@@ -30,8 +30,18 @@ spec:
             - name: HELM_ARGS
               value: >-
                 --set club={{index .path.segments 1}}
-                {{`{{ if ne (exec "find" "club/{{index .path.segments 1}}" "-path" "*/stag.values.yaml" "-type" "f" "|" "wc" "-l") "0" }}--set environments.stag=true{{ end }}`}}
-                {{`{{ if ne (exec "find" "club/{{index .path.segments 1}}" "-path" "*/prod.values.yaml" "-type" "f" "|" "wc" "-l") "0" }}--set environments.prod=true{{ end }}`}}
+                --set-json 'environments.stag=false'
+                --set-json 'environments.prod=false'
+                --post-renderer /bin/bash -c '
+                  count_stag=$(find "club/{{index .path.segments 1}}" -name "stag.values.yaml" | wc -l);
+                  count_prod=$(find "club/{{index .path.segments 1}}" -name "prod.values.yaml" | wc -l);
+                  if [ "$count_stag" -gt 0 ]; then 
+                    sed -i "s/environments.stag=false/environments.stag=true/g" $HELM_ARGS;
+                  fi;
+                  if [ "$count_prod" -gt 0 ]; then 
+                    sed -i "s/environments.prod=false/environments.prod=true/g" $HELM_ARGS;
+                  fi;
+                  cat'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{index .path.segments 1}}'

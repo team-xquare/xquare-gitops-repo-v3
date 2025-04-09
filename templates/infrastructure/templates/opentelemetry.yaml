@@ -1,9 +1,10 @@
+{{- if .Values.environments.stag }}
 ---
 apiVersion: opentelemetry.io/v1alpha1
 kind: Instrumentation
 metadata:
-  name: otel-instrumentation-{{ .Values.club }}
-  namespace: {{ include "infrastructure.namespace" . }}
+  name: otel-instrumentation-{{ .Values.club }}-stag
+  namespace: {{ include "infrastructure.namespace" . }}-stag
 spec:
   exporter:
     endpoint: "http://$(OTEL_NODE_IP):4317"
@@ -13,3 +14,22 @@ spec:
   sampler:
     type: parentbased_traceidratio
     argument: "1"
+{{- end }}
+
+{{- if .Values.environments.prod }}
+---
+apiVersion: opentelemetry.io/v1alpha1
+kind: Instrumentation
+metadata:
+  name: otel-instrumentation-{{ .Values.club }}-prod
+  namespace: {{ include "infrastructure.namespace" . }}-prod
+spec:
+  exporter:
+    endpoint: "http://$(OTEL_NODE_IP):4317"
+  propagators:
+    - tracecontext
+    - baggage
+  sampler:
+    type: parentbased_traceidratio
+    argument: "1"
+{{- end }}
