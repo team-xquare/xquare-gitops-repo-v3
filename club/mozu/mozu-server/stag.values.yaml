@@ -5,6 +5,6 @@ containerPort: 3000
 domain: mozu-stag.xquare.app
 language: nodejs
 criticalService: false
-buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","port":3000,"output_dir":"/dist"}'
+buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","port":3000,"command":"npm run start"}'
 githubInstallationID: 64125603
 imageTag: abc25db0955ea3db5e77059a32dcf0f71efcf2d7
