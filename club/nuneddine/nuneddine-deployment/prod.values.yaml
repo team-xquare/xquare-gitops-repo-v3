@@ -1,8 +1,8 @@
-branch: jwtfix
+branch: main
 buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/capstone-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew clean build"]}'
 containerPort: 8080
 critical_service: false
-domain: nuneddine
+domain: nuneddine.xquare.app
 githubInstallationID: 64042787
 language: java
 organization: taeyang-s-playGround
