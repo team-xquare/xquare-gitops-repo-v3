@@ -1,9 +1,11 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
+{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogDashboard
 metadata:
   name: {{ $fullname }}-dashboard
+  namespace: {{ $namespace }}
 spec:
   title: {{ $fullname }}-dashboard
   description: null
