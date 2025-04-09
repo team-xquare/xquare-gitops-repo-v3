@@ -1,12 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: {{ include "infrastructure.namespace" . }}
-  labels:
-    name: {{ include "infrastructure.namespace" . }}
-    istio-injection: enabled
-
 {{- if .Values.environments.stag }}
 ---
 apiVersion: v1
