@@ -1,9 +1,10 @@
+{{- if .Values.environments.stag }}
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: EventBus
 metadata:
   name: ci-eventbus
-  namespace: {{ include "infrastructure.namespace" . }}
+  namespace: {{ include "infrastructure.namespace" . }}-stag
 spec:
   nats:
     native:
@@ -23,3 +24,32 @@ spec:
           limits:
             cpu: 40m
             memory: 50Mi
+{{- end }}
+
+{{- if .Values.environments.prod }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: ci-eventbus
+  namespace: {{ include "infrastructure.namespace" . }}-prod
+spec:
+  nats:
+    native:
+      replicas: 3
+      antiAffinity: false
+      auth: none
+      tolerations:
+        - key: xquare/ci-server
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+      containerTemplate:
+        resources:
+          requests:
+            cpu: 15m
+            memory: 25Mi
+          limits:
+            cpu: 40m
+            memory: 50Mi
+{{- end }}

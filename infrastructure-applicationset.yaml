@@ -30,6 +30,8 @@ spec:
             - name: HELM_ARGS
               value: >-
                 --set club={{index .path.segments 1}}
+                {{`{{ if ne (exec "find" "club/{{index .path.segments 1}}" "-path" "*/stag.values.yaml" "-type" "f" "|" "wc" "-l") "0" }}--set environments.stag=true{{ end }}`}}
+                {{`{{ if ne (exec "find" "club/{{index .path.segments 1}}" "-path" "*/prod.values.yaml" "-type" "f" "|" "wc" "-l") "0" }}--set environments.prod=true{{ end }}`}}
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{index .path.segments 1}}'
