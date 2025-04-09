@@ -1,0 +1,25 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: ci-eventbus
+  namespace: {{ include "infrastructure.namespace" . }}
+spec:
+  nats:
+    native:
+      replicas: 3
+      antiAffinity: false
+      auth: none
+      tolerations:
+        - key: xquare/ci-server
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+      containerTemplate:
+        resources:
+          requests:
+            cpu: 15m
+            memory: 25Mi
+          limits:
+            cpu: 40m
+            memory: 50Mi

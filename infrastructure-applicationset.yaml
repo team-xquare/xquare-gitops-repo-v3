@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: xquare-gitops-repo-v3-appset
+  name: xquare-club-infrastructure
   namespace: argocd
 spec:
   goTemplate: true
@@ -10,37 +10,33 @@ spec:
     - git:
         repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
         revision: HEAD
-        files:
-          - path: "club/*/*/*.values.yaml"
+        directories:
+          - path: "club/*"
   template:
     metadata:
-      name: '{{index .path.segments 2}}-{{.path.filenameNormalized | trimSuffix ".values.yaml"}}'
+      name: 'infrastructure-{{index .path.segments 1}}'
       labels:
         club: "{{index .path.segments 1}}"
-        app: "{{index .path.segments 2}}"
-        env: '{{.path.basenameNormalized | trimSuffix ".values.yaml"}}'
+        type: "infrastructure"
     spec:
       project: default
       source:
         repoURL: https://github.com/team-xquare/xquare-gitops-repo-v3
         targetRevision: HEAD
-        path: templates/server
+        path: templates/infrastructure
         plugin:
           name: argocd-vault-plugin-helm
           env:
             - name: HELM_ARGS
               value: >-
-                --values ../../{{.path.path}}/{{.path.filename}}
-                --set club={{index .path.segments 1}} 
-                --set name={{index .path.segments 2}} 
-                --set environment={{.path.filenameNormalized | trimSuffix ".values.yaml"}}
-                --set shared.enabled=false
+                --set club={{index .path.segments 1}}
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{index .path.segments 1}}-{{.path.filenameNormalized | trimSuffix ".values.yaml"}}'
+        namespace: '{{index .path.segments 1}}'
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
         syncOptions:
+          - CreateNamespace=true
           - PruneLast=true

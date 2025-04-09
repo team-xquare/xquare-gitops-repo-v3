@@ -1,0 +1,20 @@
+---
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: {{ .Values.club }}-vault-auth
+  namespace: {{ include "infrastructure.namespace" . }}
+spec:
+  method: kubernetes
+  mount: kubernetes
+  kubernetes:
+    role: xquare
+    serviceAccount: {{ .Values.club }}-vault-service-account
+    audiences:
+      - vault
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.club }}-vault-service-account
+  namespace: {{ include "infrastructure.namespace" . }}
