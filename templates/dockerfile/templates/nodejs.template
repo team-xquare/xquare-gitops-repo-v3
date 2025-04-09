@@ -1,26 +1,20 @@
-FROM node:{{ node_version }}-alpine AS build
+FROM node:{{ node_version }} AS build
 
-WORKDIR /app
+COPY . .
 
-COPY {{ build_dir }}/package*.json ./
-RUN npm ci
-
-COPY {{ build_dir }} .
 {% for command in build_commands %}
 RUN {{ command }}
 {% endfor %}
 
-FROM node:{{ node_version }}-alpine
+FROM node:{{ node_version }}
 
-ENV NODE_ENV=production
-ENV TZ=Asia/Seoul
-
-WORKDIR /app
-
-COPY --from=build /app/package*.json ./
-COPY --from=build /app{{ output_dir }} ./{{ output_dir }}
-COPY --from=build /app/node_modules ./node_modules
+COPY --from=build . .
 
 EXPOSE {{ port }}
 
-CMD ["node", "{{ output_dir }}/index.js"]
+{%- if command %}
+CMD [
+  {%- for arg in command.split() %}
+  {%- if not loop.first %}, {% endif %}"{{ arg }}"
+  {%- endfor %}]
+{%- endif %}
