@@ -1,5 +1,4 @@
 {{- $fullname := (printf "%s-%s" .Values.name .Values.environment) }}
-{{- $namespace := (printf "%s-%s" .Values.club .Values.environment) }}
 ---
 apiVersion: datadoghq.com/v1alpha1
 kind: DatadogDashboard
@@ -47,7 +46,7 @@ spec:
       {
         "id": 1828811240780074,
         "definition": {
-          "title": "Erros",
+          "title": "Errors",
           "title_size": "16",
           "title_align": "left",
           "show_legend": true,
@@ -153,9 +152,75 @@ spec:
         "layout": {"x": 8, "y": 0, "width": 4, "height": 2}
       },
       {
+        "id": 8372280242358601,
+        "definition": {
+          "title": "API별 요청 수 (OK/Error)",
+          "title_size": "16",
+          "title_align": "left",
+          "show_legend": true,
+          "legend_layout": "auto",
+          "legend_columns": ["avg", "min", "max", "value", "sum"],
+          "time": {"type": "live", "unit": "hour", "value": 1},
+          "type": "timeseries",
+          "requests": [
+            {
+              "formulas": [
+                {"formula": "query1", "alias": "OK 요청"}
+              ],
+              "queries": [
+                {
+                  "name": "query1",
+                  "data_source": "spans",
+                  "search": {"query": "service:{{ $fullname }} status:ok"},
+                  "indexes": ["*"],
+                  "group_by": [
+                    {
+                      "facet": "resource_name",
+                      "limit": 10,
+                      "sort": {"aggregation": "count", "order": "desc"}
+                    }
+                  ],
+                  "compute": {"aggregation": "count"},
+                  "storage": "hot"
+                }
+              ],
+              "response_format": "timeseries",
+              "style": {"palette": "green", "line_type": "solid", "line_width": "normal"},
+              "display_type": "bars"
+            },
+            {
+              "formulas": [
+                {"formula": "query2", "alias": "Error 요청"}
+              ],
+              "queries": [
+                {
+                  "name": "query2",
+                  "data_source": "spans",
+                  "search": {"query": "service:{{ $fullname }} status:error"},
+                  "indexes": ["*"],
+                  "group_by": [
+                    {
+                      "facet": "resource_name",
+                      "limit": 10,
+                      "sort": {"aggregation": "count", "order": "desc"}
+                    }
+                  ],
+                  "compute": {"aggregation": "count"},
+                  "storage": "hot"
+                }
+              ],
+              "response_format": "timeseries",
+              "style": {"palette": "red", "line_type": "solid", "line_width": "normal"},
+              "display_type": "bars"
+            }
+          ]
+        },
+        "layout": {"x": 0, "y": 2, "width": 12, "height": 3}
+      },
+      {
         "id": 556828742999416,
         "definition": {
-          "title": "",
+          "title": "이슈",
           "title_size": "16",
           "title_align": "left",
           "requests": [
@@ -175,12 +240,12 @@ spec:
           ],
           "type": "list_stream"
         },
-        "layout": {"x": 0, "y": 2, "width": 12, "height": 3}
+        "layout": {"x": 0, "y": 5, "width": 12, "height": 3}
       },
       {
         "id": 4013092634840146,
         "definition": {
-          "title": "Endpoint Breakdown",
+          "title": "Endpoint 성능 분석",
           "title_size": "16",
           "title_align": "left",
           "type": "query_table",
@@ -211,13 +276,13 @@ spec:
           ],
           "has_search_bar": "auto"
         },
-        "layout": {"x": 0, "y": 5, "width": 6, "height": 4}
+        "layout": {"x": 0, "y": 8, "width": 6, "height": 4}
       },
       {
         "id": 7641022191923658,
         "definition": {
           "time": {"type": "live", "unit": "hour", "value": 1},
-          "title": "Status Treemap",
+          "title": "HTTP 상태 코드 분포",
           "type": "treemap",
           "requests": [
             {
@@ -245,12 +310,12 @@ spec:
             }
           ]
         },
-        "layout": {"x": 6, "y": 5, "width": 6, "height": 4}
+        "layout": {"x": 6, "y": 8, "width": 6, "height": 4}
       },
       {
         "id": 7839211518193048,
         "definition": {
-          "title": "",
+          "title": "Trace 목록",
           "title_size": "16",
           "title_align": "left",
           "requests": [
@@ -275,7 +340,63 @@ spec:
           ],
           "type": "list_stream"
         },
-        "layout": {"x": 0, "y": 9, "width": 12, "height": 6}
+        "layout": {"x": 0, "y": 12, "width": 12, "height": 6}
+      },
+      {
+        "id": 9013092634840147,
+        "definition": {
+          "title": "API별 에러 비율",
+          "title_size": "16",
+          "title_align": "left",
+          "type": "query_table",
+          "requests": [
+            {
+              "queries": [
+                {
+                  "name": "query1",
+                  "data_source": "spans",
+                  "search": {"query": "service:{{ $fullname }}"},
+                  "indexes": ["*"],
+                  "group_by": [
+                    {
+                      "facet": "resource_name",
+                      "limit": 10,
+                      "sort": {"aggregation": "count", "order": "desc"},
+                      "should_exclude_missing": true
+                    }
+                  ],
+                  "compute": {"aggregation": "count"},
+                  "storage": "hot"
+                },
+                {
+                  "name": "query2",
+                  "data_source": "spans",
+                  "search": {"query": "service:{{ $fullname }} status:error"},
+                  "indexes": ["*"],
+                  "group_by": [
+                    {
+                      "facet": "resource_name",
+                      "limit": 10,
+                      "sort": {"aggregation": "count", "order": "desc"},
+                      "should_exclude_missing": true
+                    }
+                  ],
+                  "compute": {"aggregation": "count"},
+                  "storage": "hot"
+                }
+              ],
+              "response_format": "scalar",
+              "sort": {"count": 10, "order_by": [{"type": "formula", "index": 0, "order": "desc"}]},
+              "formulas": [
+                {"formula": "query1", "alias": "전체 요청", "cell_display_mode": "number"},
+                {"formula": "query2", "alias": "에러 요청", "cell_display_mode": "number"},
+                {"formula": "(query2/query1) * 100", "alias": "에러율 (%)", "cell_display_mode": "bar"}
+              ]
+            }
+          ],
+          "has_search_bar": "auto"
+        },
+        "layout": {"x": 0, "y": 18, "width": 12, "height": 5}
       }
     ]
   templateVariables:
@@ -287,4 +408,3 @@ spec:
   layoutType: ordered
   notifyList: []
   reflowType: fixed
-
