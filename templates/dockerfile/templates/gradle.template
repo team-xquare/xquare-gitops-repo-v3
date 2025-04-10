@@ -6,6 +6,8 @@ COPY {{ build_dir }}/ .
 RUN chmod +x gradlew
 
 ENV KOTLIN_COMPILER_EXECUTION_STRATEGY="in-process"
+ENV KOTLIN_USER_HOME="/workspace/repo/.kotlin"
+
 
 {% for command in build_commands %}
 RUN {{ command }} --no-daemon
