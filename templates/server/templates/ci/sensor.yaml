@@ -70,6 +70,8 @@ spec:
                 namespace: {{ $namespace }}
                 annotations:
                   sidecar.istio.io/inject: "false"
+                labels:
+                  xquare/full-name: {{ $fullname }}
               spec:
                 {{- if not $useLatestTag }}
                 arguments:
