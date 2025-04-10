@@ -5,7 +5,7 @@ apiVersion: datadoghq.com/v1alpha1
 kind: DatadogDashboard
 metadata:
   name: {{ $fullname }}-dashboard
-  namespace: {{ $namespace }}
+  namespace: monitoring
 spec:
   title: {{ $fullname }}-dashboard
   description: null
