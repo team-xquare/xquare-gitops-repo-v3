@@ -86,9 +86,8 @@ spec:
                 optional: true
           resources:
             requests:
-              memory: "500Mi"
-              cpu: "20m"
-              ephemeral-storage: "20Mi"
+              memory: "300Mi"
+              cpu: "10m"
             limits:
               memory: "1Gi"
           readinessProbe:
