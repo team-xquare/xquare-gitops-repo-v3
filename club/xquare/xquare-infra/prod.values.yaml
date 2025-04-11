@@ -8,4 +8,4 @@ privateService: false
 language: java
 buildConfig: '{"builder":"gradle","jdk_version":17,"build_dir":".","build_commands":["./gradlew build -x test"],"output_dir":"/build/libs/xquare-infra-0.0.1-SNAPSHOT.jar","port":8080}'
 githubInstallationID: 62433388
-imageTag: 95150500345fb464a82148d568f6788412abd824
+imageTag: 3681d625a1142cf74aa68212b3d2a8c356ebeff1
