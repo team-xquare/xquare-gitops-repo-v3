@@ -7,10 +7,11 @@ RUN chmod +x gradlew
 
 ENV KOTLIN_COMPILER_EXECUTION_STRATEGY="in-process"
 ENV KOTLIN_USER_HOME="/workspace/repo/.kotlin"
+ENV KOTLIN_DAEMON_DISABLED=true
 
 
 {% for command in build_commands %}
-RUN {{ command }} --no-daemon
+RUN {{ command }}
 {% endfor %}
 
 FROM amazoncorretto:{{ jdk_version }}
