@@ -176,8 +176,11 @@ spec:
                             
                             echo '{{ .Values.buildConfig }}' > /tmp/config.json
                             BUILDER=$(jq -r '.builder // "default"' /tmp/config.json)
-                            curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
-                            python3 -c "import jinja2; import json; print(jinja2.Template(open('/tmp/template.j2').read()).render(**json.load(open('/tmp/config.json'))))" > /workspace/repo/Dockerfile || exit 1
+                            
+                            if [ "$BUILDER" != "dockerfile" ]; then
+                                curl -s "https://raw.githubusercontent.com/team-xquare/xquare-gitops-repo-v3/refs/heads/main/templates/dockerfile/templates/${BUILDER}.template" -o /tmp/template.j2 || echo "FROM alpine:latest" > /tmp/template.j2
+                                python3 -c "import jinja2; import json; print(jinja2.Template(open('/tmp/template.j2').read()).render(**json.load(open('/tmp/config.json'))))" > /workspace/repo/Dockerfile || exit 1
+                            fi
                         env:
                           - name: GITHUB_PRIVATE_KEY
                             valueFrom:
