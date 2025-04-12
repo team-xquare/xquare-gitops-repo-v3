@@ -87,7 +87,7 @@ spec:
           resources:
             requests:
               memory: "300Mi"
-              cpu: "6m"
+              cpu: "3m"
             limits:
               memory: "1Gi"
           readinessProbe:
