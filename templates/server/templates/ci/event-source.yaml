@@ -46,11 +46,11 @@ spec:
     container:
       resources:
         requests:
-          cpu: 25m
-          memory: 40Mi
+          cpu: 10m
+          memory: 30Mi
         limits:
-          cpu: 60m
-          memory: 75Mi
+          cpu: 50m
+          memory: 60Mi
     tolerations:
       - key: xquare/ci-server
         operator: Equal
