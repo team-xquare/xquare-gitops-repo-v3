@@ -37,11 +37,11 @@ spec:
     container:
       resources:
         requests:
-          cpu: 25m
-          memory: 40Mi
+          cpu: 10m
+          memory: 30Mi
         limits:
-          cpu: 60m
-          memory: 75Mi
+          cpu: 50m
+          memory: 60Mi
     serviceAccountName: kaniko-sa
     tolerations:
       - key: xquare/ci-server
@@ -237,11 +237,11 @@ spec:
                               name: github-token
                       resources:
                         requests:
-                          cpu: 15m
-                          memory: 25Mi
+                          cpu: 10m
+                          memory: 20Mi
                         limits:
-                          cpu: 40m
-                          memory: 50Mi
+                          cpu: 30m
+                          memory: 40Mi
                 volumes:
                   - name: workspace
                     emptyDir: {}
