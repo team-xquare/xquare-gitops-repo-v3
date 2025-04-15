@@ -43,6 +43,9 @@ spec:
         port: {{ $webhookPort }}
         targetPort: {{ $webhookPort }}
   template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"gi
     container:
       resources:
         requests:
