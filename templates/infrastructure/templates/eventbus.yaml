@@ -17,6 +17,9 @@ spec:
           value: "true"
           effect: NoSchedule
       containerTemplate:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
         resources:
           requests:
             cpu: 15m
