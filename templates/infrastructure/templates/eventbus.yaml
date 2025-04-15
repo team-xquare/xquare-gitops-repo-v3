@@ -39,6 +39,9 @@ metadata:
 spec:
   nats:
     native:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "false"
       replicas: 3
       antiAffinity: false
       auth: none
