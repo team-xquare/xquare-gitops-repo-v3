@@ -87,7 +87,7 @@ spec:
           resources:
             requests:
               memory: "{{ if or (eq .Values.language "java") (eq .Values.language "nodejs") }}300Mi{{ else }}20Mi{{ end }}"
-              cpu: "2m"
+              cpu: "1m"
             limits:
               memory: "1Gi"
           readinessProbe:
