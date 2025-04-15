@@ -8,4 +8,4 @@ language: java
 organization: DSM-PICK
 port: 8080
 repository: PICK_CORE_SERVER
-imageTag: latest
+imageTag: 62fb9cdf03d9de91fdb9bb57f68e69d211fbb2e1
