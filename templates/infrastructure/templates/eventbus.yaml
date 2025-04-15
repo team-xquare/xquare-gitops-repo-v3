@@ -8,6 +8,10 @@ metadata:
 spec:
   nats:
     native:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
       replicas: 3
       antiAffinity: false
       auth: none
@@ -17,9 +21,6 @@ spec:
           value: "true"
           effect: NoSchedule
       containerTemplate:
-        metadata:
-          annotations:
-            sidecar.istio.io/inject: "false"
         resources:
           requests:
             cpu: 15m
