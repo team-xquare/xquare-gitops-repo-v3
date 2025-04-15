@@ -34,6 +34,9 @@ spec:
         dataLogicalOperator: "or"
   eventBusName: ci-eventbus
   template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
     container:
       resources:
         requests:
