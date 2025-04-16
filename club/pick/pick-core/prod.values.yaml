@@ -9,3 +9,4 @@ organization: DSM-PICK
 port: 8080
 repository: PICK_CORE_SERVER
 imageTag: latest
+instanceType: x3.large

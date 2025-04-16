@@ -9,3 +9,4 @@ organization: taeyang-s-playGround
 port: 8080
 repository: Nuneddine
 imageTag: 7fc06ce91189e3a5951c7cb1fe6ecfba786bf10e
+instanceType: x3.large

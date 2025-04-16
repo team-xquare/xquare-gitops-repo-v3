@@ -8,3 +8,4 @@ criticalService: false
 buildConfig: '{"builder":"nodejs","node_version":"22.5.1","build_dir":"/","build_commands":["npm install && npm run build"],"output_dir":"/dist","port":3000}'
 githubInstallationID: 63879080
 imageTag: latest
+instanceType: x3.large

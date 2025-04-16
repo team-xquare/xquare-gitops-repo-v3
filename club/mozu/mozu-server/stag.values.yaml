@@ -8,3 +8,4 @@ criticalService: false
 buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","port":3000,"command":"npm run start"}'
 githubInstallationID: 64125603
 imageTag: 9d7a5aaee832e1a47070f55475ced1726c041b8a
+instanceType: x3.large
