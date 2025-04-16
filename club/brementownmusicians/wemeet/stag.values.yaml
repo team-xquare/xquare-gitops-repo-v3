@@ -9,3 +9,4 @@ organization: BremenMusicians
 port: 8080
 repository: WeMeet_BE
 imageTag: 1bfa6d848e16a554013ddcf779c786a7ddca3a11
+instanceType: x3.large

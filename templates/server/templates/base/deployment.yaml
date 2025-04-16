@@ -85,11 +85,43 @@ spec:
                 name: {{ $fullname }}
                 optional: true
           resources:
+            {{- if eq .Values.instanceType "x3.nano" }}
             requests:
-              memory: "{{ if or (eq .Values.language "java") (eq .Values.language "nodejs") }}300Mi{{ else }}20Mi{{ end }}"
               cpu: "1m"
+              memory: "20Mi"
             limits:
+              memory: "30Mi"
+            {{- else if eq .Values.instanceType "x3.micro" }}
+            requests:
+              cpu: "2m"
+              memory: "100Mi"
+            limits:
+              memory: "150Mi"
+            {{- else if eq .Values.instanceType "x3.small" }}
+            requests:
+              cpu: "4m"
+              memory: "250Mi"
+            limits:
+              memory: "400Mi"
+            {{- else if eq .Values.instanceType "x3.medium" }}
+            requests:
+              cpu: "7m"
+              memory: "600Mi"
+            limits:
+              memory: "800Mi"
+            {{- else if eq .Values.instanceType "x3.large" }}
+            requests:
+              cpu: "10m"
               memory: "1Gi"
+            limits:
+              memory: "1.5Gi"
+            {{- else }}
+            requests:
+              cpu: "1m"
+              memory: "20Mi"
+            limits:
+              memory: "30Mi"
+            {{- end }}
           readinessProbe:
             tcpSocket:
               port: {{ .Values.containerPort }}

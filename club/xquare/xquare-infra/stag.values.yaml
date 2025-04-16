@@ -8,3 +8,4 @@ language: java
 organization: team-xquare
 port: 8080
 repository: xquare-infra-backend
+instanceType: x3.large
