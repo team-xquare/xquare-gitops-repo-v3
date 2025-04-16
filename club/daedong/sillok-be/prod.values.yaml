@@ -7,5 +7,5 @@ githubInstallationID: 63841363
 language: java
 organization: Team-jeong-ho-kim
 repository: Sillok_BE
-imageTag: 3835d183e7ad83cdc13db14dcb77b89577fd70b5
+imageTag: 51c4227eedb83070655aa9f1c8570ffffbbdcdf3
 instanceType: x3.large
