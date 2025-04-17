@@ -9,4 +9,4 @@ organization: EntryDSM
 port: 4200
 repository: Entry-Internship
 imageTag: c74e8c55c78513097cc5eb8183ffce0954447cdf
-instanceType: x3.large
+instanceType: "x3.small"
