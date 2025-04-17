@@ -8,4 +8,4 @@ language: react
 organization: team-xquare
 repository: xquare-frontend-v2
 imageTag: 057328a6567312fc275603b1f68292eaff0def87
-instanceType: x3.large
+instanceType: "x3.small"
