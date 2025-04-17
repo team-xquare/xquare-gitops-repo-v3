@@ -8,4 +8,4 @@ language: java
 organization: Team-jeong-ho-kim
 repository: Sillok_BE
 imageTag: 3a9c6f63f22463085e610b094c80b16894abe9e5
-instanceType: x3.large
+instanceType: "x3.medium"
