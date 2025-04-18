@@ -6,4 +6,5 @@ domain: dev-api.dms-dsm.com
 language: java
 buildConfig: '{"builder":"gradle","jdk_version":21,"build_dir":".","build_commands":["export _JAVA_OPTIONS=\"-XX:-UsePerfData\" && ./gradlew build -x test --build-cache --no-daemon"],"output_dir":"/dms-infrastructure/build/libs/*.jar","port":8080}'
 githubInstallationID: 64597732
-instanceType: "x3.small"
+instanceType: x3.small
+imageTag: latest
