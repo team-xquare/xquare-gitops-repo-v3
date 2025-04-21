@@ -9,3 +9,4 @@ organization: HyunSu1768
 port: 3000
 repository: DaekTalk-Homepage
 imageTag: latest
+instanceType: "x3.medium"
