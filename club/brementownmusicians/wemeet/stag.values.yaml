@@ -8,5 +8,5 @@ language: java
 organization: BremenMusicians
 port: 8080
 repository: WeMeet_BE
-imageTag: 0b2093597cb5c8d4a6368b040f508b81edb32967
+imageTag: 1c854cfd397b6543cfd4f8002e8517af3a7bc064
 instanceType: x3.medium
