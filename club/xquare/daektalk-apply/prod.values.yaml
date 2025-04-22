@@ -9,4 +9,4 @@ organization: Daeke-Talk
 port: 8080
 repository: DaekeTalk-Server
 instanceType: x3.medium
-imageTag: 4572ac34f0bba02d3c7d54446f7359cc9eb3a319
+imageTag: a3d62f61189c1231902ac9b834f30e1463a0d3b2
