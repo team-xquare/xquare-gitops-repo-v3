@@ -2,7 +2,7 @@ branch: main
 buildConfig: '{"jdk_version":21,"output_dir":"/build/libs/DaekeTalk-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"],"port":8080}'
 containerPort: 8080
 criticalService: false
-domain: deaktalk-apply.xquare.app
+domain: daektalk-apply.xquare.app
 githubInstallationID: 65049086
 language: java
 organization: Daeke-Talk
