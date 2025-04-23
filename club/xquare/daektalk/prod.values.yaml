@@ -8,5 +8,5 @@ language: nodejs
 organization: HyunSu1768
 port: 3000
 repository: DaekTalk-Homepage
-imageTag: 4a5fbeb1787d9d185dd6780897427304cab38618
+imageTag: a1d87857f18f3ff5121755336b6c463f197c35a8
 instanceType: x3.medium
