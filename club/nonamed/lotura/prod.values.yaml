@@ -7,5 +7,5 @@ language: nodejs
 criticalService: false
 buildConfig: '{"builder":"nodejs","node_version":"22.5.1","build_dir":"/","build_commands":["yarn && yarn build"],"command":"yarn start","port":3000}'
 githubInstallationID: 64110126
-imageTag: 01e0a5f8db7155313526837af6edb0ae58ea3a44
+imageTag: cf439b26ef0f3631bb675a634c3d05965cda9728
 instanceType: x3.medium
