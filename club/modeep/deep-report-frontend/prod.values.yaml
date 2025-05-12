@@ -8,4 +8,4 @@ language: react
 organization: dutexion
 port: 3000
 repository: deep-report
-imageTag: f7badabcbd505b3cfcec101fc6c98e3f1952a16a
+imageTag: db95be1b67f6adde773f66cc68642c9c8cdc598e
