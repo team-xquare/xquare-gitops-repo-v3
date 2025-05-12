@@ -1,7 +1,7 @@
 branch: main
 buildConfig: '{"builder":"react","node_version":"20","build_dir":"/","build_commands":["npm run build"],"output_dir":"/dist","port":3000}'
 containerPort: 3000
-criticalService: true
+criticalService: false
 domain: deep-report.xquare.app
 githubInstallationID: 66550275
 language: react
