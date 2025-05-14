@@ -8,4 +8,4 @@ language: nodejs
 organization: Keep-DSM
 port: 8080
 repository: keep-Backend
-imageTag: latest
+imageTag: 50d7724d75b6e8b9a68fcb29e6b69a33c87a59fe
