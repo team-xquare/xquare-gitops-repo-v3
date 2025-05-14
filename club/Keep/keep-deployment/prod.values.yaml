@@ -1,0 +1,10 @@
+branch: develop
+buildConfig: '{"node_version":"22","build_commands":["nest bulid"],"builder":"nodejs","build_dir":"/","command":"nest start","port":8080}'
+containerPort: 8080
+criticalService: false
+domain: keep-prod.xquare.app
+githubInstallationID: 66778564
+language: nodejs
+organization: Keep-DSM
+port: 8080
+repository: keep-Backend
