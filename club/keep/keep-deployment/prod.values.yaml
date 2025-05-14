@@ -1,11 +1,11 @@
 branch: develop
 buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm run start","port":3000}'
-containerPort: 8080
+containerPort: 3000
 criticalService: false
 domain: keep-prod.xquare.app
 githubInstallationID: 66778564
 language: nodejs
 organization: Keep-DSM
-port: 8080
+port: 3000
 repository: keep-Backend
 imageTag: 50d7724d75b6e8b9a68fcb29e6b69a33c87a59fe
