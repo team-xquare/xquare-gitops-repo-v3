@@ -1,5 +1,5 @@
 branch: develop
-buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm run start","port":8080}'
+buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm run start","port":3000}'
 containerPort: 3000
 criticalService: false
 domain: keep-stag.xquare.app
