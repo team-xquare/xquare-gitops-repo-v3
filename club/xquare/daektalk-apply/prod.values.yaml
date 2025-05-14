@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"jdk_version":21,"output_dir":"/build/libs/DaekeTalk-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"],"port":8080}'
+buildConfig: '{"jdk_version":21,"output_dir":"/build/libs/DaekTalk-0.0.1-SNAPSHOT.jar-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"],"port":8080}'
 containerPort: 8080
 criticalService: false
 domain: daektalk-apply.xquare.app
