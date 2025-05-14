@@ -1,10 +1,10 @@
 branch: develop
 buildConfig: '{"node_version":"22","build_commands":["nest build"],"builder":"nodejs","build_dir":"/","command":"nest start","port":8080}'
-containerPort: 8080
+containerPort: 3000
 criticalService: false
 domain: keep-stag.xquare.app
 githubInstallationID: 66778564
 language: nodejs
 organization: Keep-DSM
-port: 8080
+port: 3000
 repository: keep-Backend
