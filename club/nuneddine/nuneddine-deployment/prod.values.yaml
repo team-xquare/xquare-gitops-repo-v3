@@ -8,5 +8,5 @@ language: java
 organization: taeyang-s-playGround
 port: 8080
 repository: Nuneddine
-imageTag: 7217fa44b7584e2d5e91281e21aadbd0d0c6c2a1
+imageTag: 3962794cab531c5bf204ee1d49c20e907d6babe9
 instanceType: x3.medium
