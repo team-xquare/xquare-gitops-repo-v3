@@ -35,11 +35,9 @@ spec:
         sidecar.istio.io/proxyCPU: "5m"
         sidecar.istio.io/proxyMemory: "128Mi"
         {{- if eq .Values.language "java" }}
-        instrumentation.opentelemetry.io/inject-java: "true"
         admission.datadoghq.com/java-lib.version: v1.49.0
         {{- end }}
         {{- if eq .Values.language "nodejs" }}
-        instrumentation.opentelemetry.io/inject-nodejs: "true"
         admission.datadoghq.com/js-lib.version: v5.52.0
         {{- end }}
       labels:
