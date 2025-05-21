@@ -13,6 +13,7 @@ metadata:
     app.kubernetes.io/name: {{ $fullname }}
     app.kubernetes.io/part-of: {{ .Values.name }}
     app.kubernetes.io/environment: {{ .Values.environment }}
+    app.kubernetes.io/club: {{ .Values.club }}
 spec:
   {{- if eq .Values.criticalService true }}
   replicas: 2
@@ -43,6 +44,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ $fullname }}
         app.kubernetes.io/part-of: {{ .Values.name }}
+        app.kubernetes.io/club: {{ .Values.club }} 
         admission.datadoghq.com/enabled: "true"
     spec:
       serviceAccountName: {{ $namespace }}-vault-service-account
