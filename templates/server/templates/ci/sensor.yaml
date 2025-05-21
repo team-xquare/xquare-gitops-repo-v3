@@ -82,8 +82,9 @@ spec:
                     - name: git-sha
                 {{- end }}
                 entrypoint: ci-pipeline
-                # podGC:
-                #   strategy: OnPodCompletion
+                podGC:
+                  strategy: OnPodCompletion
+                  deleteDelayDuration: 72h
                 serviceAccountName: kaniko-sa
                 templates:
                   - name: ci-pipeline
