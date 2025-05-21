@@ -82,8 +82,8 @@ spec:
                     - name: git-sha
                 {{- end }}
                 entrypoint: ci-pipeline
-                podGC:
-                  strategy: OnPodCompletion
+                # podGC:
+                #   strategy: OnPodCompletion
                 serviceAccountName: kaniko-sa
                 templates:
                   - name: ci-pipeline
