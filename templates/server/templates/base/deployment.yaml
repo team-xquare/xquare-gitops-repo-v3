@@ -35,6 +35,7 @@ spec:
         sidecar.istio.io/rewriteAppHTTPProbers: "false"
         sidecar.istio.io/proxyCPU: "5m"
         sidecar.istio.io/proxyMemory: "128Mi"
+        admission.datadoghq.com/enabled: "true"
         {{- if eq .Values.language "java" }}
         admission.datadoghq.com/java-lib.version: v1.49.0
         {{- end }}
