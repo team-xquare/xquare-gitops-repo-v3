@@ -32,6 +32,7 @@ spec:
   template:
     metadata:
       annotations:
+        sidecar.opentelemetry.io/inject: "true"
         sidecar.istio.io/rewriteAppHTTPProbers: "false"
         sidecar.istio.io/proxyCPU: "5m"
         sidecar.istio.io/proxyMemory: "128Mi"
@@ -40,6 +41,7 @@ spec:
         admission.datadoghq.com/java-lib.version: v1.49.0
         {{- end }}
         {{- if eq .Values.language "nodejs" }}
+        instrumentation.opentelemetry.io/inject-nodejs: "true"
         admission.datadoghq.com/js-lib.version: v5.52.0
         {{- end }}
       labels:
