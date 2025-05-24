@@ -32,6 +32,7 @@ spec:
   template:
     metadata:
       annotations:
+        sidecar.opentelemetry.io/inject: "true"
         sidecar.istio.io/rewriteAppHTTPProbers: "false"
         sidecar.istio.io/proxyCPU: "5m"
         sidecar.istio.io/proxyMemory: "128Mi"
