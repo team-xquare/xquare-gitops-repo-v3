@@ -8,3 +8,4 @@ language: nodejs
 organization: Keep-DSM
 port: 3000
 repository: keep-Backend
+instanceType: x3.large
