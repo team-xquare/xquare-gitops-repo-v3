@@ -8,5 +8,5 @@ language: nodejs
 organization: Keep-DSM
 port: 3000
 repository: keep-Backend
-imageTag: 0a6089cbf1d750da77108fb4c68e837285e65f0a
+imageTag: 644ec6825c1bdea9ca1d253a2d3b50b0d9fec724
 instanceType: x3.large
