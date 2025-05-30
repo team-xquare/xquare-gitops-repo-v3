@@ -1,5 +1,5 @@
 branch: master
-buildConfig: '{"jdk_version":21,"output_dir":"/build/libs/*.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew clean build"],"port":8080}'
+buildConfig: '{"jdk_version":21,"output_dir":"/build/libs/Silent-Flowers-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"],"port":8080}'
 containerPort: 8080
 criticalService: false
 domain: silent-flowers.xquare.app
