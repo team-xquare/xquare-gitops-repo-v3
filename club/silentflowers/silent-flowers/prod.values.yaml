@@ -8,3 +8,4 @@ language: java
 organization: Silent-flowers-bloom-gracefully
 port: 8080
 repository: backend
+imageTag: latest
