@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"node_version":"22","build_commands":["npm run build"],"builder":"nodejs","build_dir":"/","command":"npm run start","port":8080}'
+buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm run start","port":8080}'
 containerPort: 3000
 criticalService: false
 domain: dsm-coin.xquare.app
