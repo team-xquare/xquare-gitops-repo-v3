@@ -23,10 +23,10 @@ spec:
         resources:
           requests:
             cpu: 15m
-            memory: 25Mi
+            memory: 55Mi
           limits:
             cpu: 40m
-            memory: 50Mi
+            memory: 80Mi
 {{- end }}
 
 {{- if .Values.environments.prod }}
@@ -54,8 +54,8 @@ spec:
         resources:
           requests:
             cpu: 15m
-            memory: 25Mi
+            memory: 55Mi
           limits:
             cpu: 40m
-            memory: 50Mi
+            memory: 80Mi
 {{- end }}
