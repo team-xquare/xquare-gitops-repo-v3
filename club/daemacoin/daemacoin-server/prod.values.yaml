@@ -7,5 +7,5 @@ language: nodejs
 criticalService: false
 buildConfig: '{"builder":"nodejs","node_version":"22.5.1","build_dir":"/","build_commands":["npm install && npm run build"],"command":"npm run start","port":3000}'
 githubInstallationID: 63879080
-imageTag: e47a5506e5fb9acc426cd72568b4b2bf9f873a6d
+imageTag: b86b696e8705544fa15b719057d37ad0897d43d4
 instanceType: x3.large
