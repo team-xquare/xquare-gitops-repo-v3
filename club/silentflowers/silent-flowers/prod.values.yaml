@@ -8,5 +8,5 @@ language: java
 organization: Silent-flowers-bloom-gracefully
 port: 8080
 repository: backend
-imageTag: 9d4e832a67beaedb53445de309f9107953a9a259
+imageTag: cbb619ae2c63e67a3f4df02c62129a62a75ca608
 instanceType: x3.large
