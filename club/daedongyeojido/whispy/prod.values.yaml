@@ -1,0 +1,10 @@
+branch: main
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/*.jar","builder":"gradle","build_dir":"gradle/wrapper","build_commands":["./gradlew clean build"],"port":8080}'
+containerPort: 8080
+criticalService: false
+domain: whispy.xquare.app
+githubInstallationID: 63841363
+language: java
+organization: Team-jeong-ho-kim
+port: 8080
+repository: Whispy_BE
