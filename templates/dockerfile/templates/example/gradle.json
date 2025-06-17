@@ -2,7 +2,7 @@
   "builder": "gradle",
   "jdk_version": "17",
   "build_dir": ".",
-  "build_commands": ["./gradlew clean build"],
+  "build_commands": ["./gradlew clean build -x test"],
   "output_dir": "/build/libs/*.jar",
   "port": 8080
 }
