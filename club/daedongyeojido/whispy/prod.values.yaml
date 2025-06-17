@@ -8,3 +8,4 @@ language: java
 organization: Team-jeong-ho-kim
 port: 8080
 repository: Whispy_BE
+imageTag: latest
