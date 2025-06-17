@@ -21,7 +21,9 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
 WORKDIR /app
 
-COPY --exclude=*-plain.jar --from=build /app{{ output_dir }} /app/app.jar
+COPY --from=build /app{{ output_dir }} /tmp/libs/
+RUN find /tmp/libs -name "*.jar" ! -name "*-plain.jar" -exec cp {} /app/app.jar \; && \
+    rm -rf /tmp/libs
 
 EXPOSE {{ port }}
 
