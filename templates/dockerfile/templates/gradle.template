@@ -21,7 +21,7 @@ ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
 
 WORKDIR /app
 
-COPY --from=build /app{{ output_dir }} /app/app.jar
+COPY --exclude=*-plain.jar --from=build /app{{ output_dir }} /app/app.jar
 
 EXPOSE {{ port }}
 
