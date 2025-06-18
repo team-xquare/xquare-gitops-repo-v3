@@ -8,5 +8,5 @@ language: java
 organization: DSM-PICK
 port: 8080
 repository: PICK_CORE_SERVER
-imageTag: a2b7c1519967fe65607837d197de32db2d9ae3d6
+imageTag: ea672297fac8980f6856bbd3d82933d86c15db2b
 instanceType: x3.large
