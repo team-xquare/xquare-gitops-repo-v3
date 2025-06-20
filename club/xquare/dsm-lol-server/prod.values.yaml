@@ -8,3 +8,4 @@ language: java
 organization: team-dsm-lol
 port: 8080
 repository: dsm-lol-server
+instanceType: x3.medium
