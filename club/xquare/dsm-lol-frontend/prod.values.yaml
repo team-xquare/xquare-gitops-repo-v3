@@ -4,7 +4,7 @@ containerPort: 3000
 criticalService: false
 domain: dsm-lol-league.xquare.app
 githubInstallationID: 72149473
-language: nodejs
+language: react
 organization: team-dsm-lol
 port: 3000
 repository: dsm-lol-frontend
