@@ -8,3 +8,4 @@ language: nodejs
 organization: team-dsm-lol
 port: 3000
 repository: dsm-lol-frontend
+instanceType: x3.medium
