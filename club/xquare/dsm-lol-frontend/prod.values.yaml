@@ -1,5 +1,5 @@
 branch: main
-buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm start","port":3000}'
+buildConfig: '{"builder":"react","node_version":"22","build_dir":"/","build_commands":["npm install && npm run build"],"output_dir":"/dist","port":3000}'
 containerPort: 3000
 criticalService: false
 domain: dsm-lol-league.xquare.app
