@@ -1,0 +1,10 @@
+branch: main
+buildConfig: '{"jdk_version":17,"output_dir":"/build/libs/dsm-lol-league-0.0.1-SNAPSHOT.jar","builder":"gradle","build_dir":"/","build_commands":["./gradlew build -x test"],"port":8080}'
+containerPort: 8080
+criticalService: false
+domain: dsm-lol-server.xquare.app
+githubInstallationID: 72149473
+language: java
+organization: team-dsm-lol
+port: 8080
+repository: dsm-lol-server
