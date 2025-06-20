@@ -1,0 +1,10 @@
+branch: main
+buildConfig: '{"node_version":"22","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","command":"npm start","port":8080}'
+containerPort: 3000
+criticalService: false
+domain: dsm-lol-league.xquare.app
+githubInstallationID: 72149473
+language: nodejs
+organization: team-dsm-lol
+port: 3000
+repository: dsm-lol-frontend
