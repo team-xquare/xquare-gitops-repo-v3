@@ -9,4 +9,4 @@ organization: team-dsm-lol
 port: 3000
 repository: dsm-lol-frontend
 instanceType: x3.medium
-imageTag: 6908d069cbaef63bcc1b568c400138ec0aea13e3
+imageTag: 01ea6e0eb1679c3197facc73e72016fc13ba9063
