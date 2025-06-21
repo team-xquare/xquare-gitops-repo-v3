@@ -9,4 +9,4 @@ organization: team-dsm-lol
 port: 8080
 repository: dsm-lol-server
 instanceType: x3.medium
-imageTag: b6d84ad88964f9bc1429d155d701b10b54379f4a
+imageTag: bb817263ff934ddffe5afc6242f7a035efad52ab
