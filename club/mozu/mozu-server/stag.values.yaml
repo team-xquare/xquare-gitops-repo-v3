@@ -7,5 +7,5 @@ language: nodejs
 criticalService: false
 buildConfig: '{"node_version":"20.16","build_commands":["npm install && npm run build"],"builder":"nodejs","build_dir":"/","port":3000,"command":"npm run start"}'
 githubInstallationID: 64125603
-imageTag: c91e9f26f7df6c3c95fb675fbb571de9a603d5be
+imageTag: d39ff7754573ae6f45baf4263bed2c7c3ee3d37c
 instanceType: x3.medium
