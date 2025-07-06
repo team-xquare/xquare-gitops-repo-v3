@@ -7,4 +7,4 @@ language: java
 buildConfig: '{"builder":"gradle","jdk_version":21,"build_dir":".","build_commands":["export _JAVA_OPTIONS=\"-XX:-UsePerfData\" && ./gradlew build -x test --build-cache --no-daemon"],"output_dir":"/dms-infrastructure/build/libs/*.jar","port":8080}'
 githubInstallationID: 64597732
 instanceType: x3.large
-imageTag: c2012edb13428772fe13855e9d2679b12f79c7c7
+imageTag: 8f86c12fe84eb6820cbb4f176a4dcf367f56b631
