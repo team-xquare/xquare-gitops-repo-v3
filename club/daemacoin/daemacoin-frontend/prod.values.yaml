@@ -9,4 +9,4 @@ organization: DaemaCoin
 port: 3000
 repository: daema_coin_frontend
 instanceType: x3.large
-imageTag: 4feeea6b7c283ede17b4aed573039a4d784ab4a7
+imageTag: 6bf5afb4dca5768b8a9065fc1a30c17952c4277f
