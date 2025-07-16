@@ -8,4 +8,4 @@ language: java
 organization: dsm-team-9
 port: 8080
 repository: reminder-backend
-imageTag: 3cbcee5240e92beba1df2cf79a5afb2248ff903f
+imageTag: fc64d0d1764e7a8f7b2a8146f186653a220e2c4c
