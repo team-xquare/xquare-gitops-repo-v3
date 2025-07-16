@@ -7,4 +7,4 @@ language: java
 organization: dsm-10
 port: 8080
 repository: spring-server
-imageTag: latest
+imageTag: 04b386fa59d98da09113179c171dd3210c689489
