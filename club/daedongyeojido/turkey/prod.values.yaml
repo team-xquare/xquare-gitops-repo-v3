@@ -9,3 +9,4 @@ organization: Team-Turkey7
 port: 8080
 repository: FirstStep_BE
 imageTag: latest
+instanceType: x3.medium
