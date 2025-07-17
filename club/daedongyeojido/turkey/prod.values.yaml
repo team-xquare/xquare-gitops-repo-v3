@@ -8,5 +8,5 @@ language: java
 organization: Team-Turkey7
 port: 8080
 repository: FirstStep_BE
-imageTag: latest
+imageTag: 2fdb9cc791de04cca6867a29a6241f9cd1e9ce21
 instanceType: x3.medium
