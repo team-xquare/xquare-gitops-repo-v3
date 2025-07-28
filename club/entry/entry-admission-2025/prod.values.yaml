@@ -1,0 +1,10 @@
+branch: develop
+buildConfig: '{"builder":"vite","node_version":"18","build_dir":"/apps/entry-user/dist","build_commands":["nx build entry-user"],"output_dir":"/apps/entry-user/dist","port":4200}'
+containerPort: 4200
+criticalService: false
+domain: entry-admission-user-dev.xquare.app
+githubInstallationID: 77967720
+language: vite
+organization: EntryDSM
+port: 4200
+repository: Entry-Admission
