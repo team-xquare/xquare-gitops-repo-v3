@@ -1,5 +1,5 @@
 branch: develop
-buildConfig: '{"builder":"vite","node_version":"18","build_dir":"/","build_commands":["npx nx build entry-user"],"output_dir":"/apps/entry-user/dist","port":4200}'
+buildConfig: '{"builder":"vite","node_version":"18","build_dir":"/","build_commands":["npm install -g nx", "yarn install", "npx nx build entry-user"],"output_dir":"/apps/entry-user/dist","port":4200}'
 containerPort: 4200
 criticalService: false
 domain: entry-admission-user-dev.xquare.app
