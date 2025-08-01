@@ -8,4 +8,4 @@ language: vite
 organization: EntryDSM
 port: 4200
 repository: Entry-Admission
-imageTag: 1ab64b5a3a472ecc0523cc57f9ff475a0b65ffcf
+imageTag: fdc218001cad90c547df071cb81fedb36b650a86
