@@ -73,20 +73,6 @@ spec:
       containers:
         - name: {{ $fullname }}
           image: {{ $ecrRegistry }}/{{ $namespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
-          env:
-            - name: DD_PROFILING_ENABLED
-              value: "true"
-            - name: DD_LOGS_INJECTION
-              value: "true"
-            - name: DD_APPSEC_ENABLED
-              value: "true"
-            - name: DD_IAST_ENABLED
-              value: "true"
-            - name: DD_APPSEC_SCA_ENABLED
-              value: "true"
-            - name: DD_TRACE_SAMPLE_RATE
-              value: "1"
-
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: {{ .Values.containerPort }}
