@@ -35,20 +35,10 @@ spec:
         sidecar.istio.io/rewriteAppHTTPProbers: "false"
         sidecar.istio.io/proxyCPU: "5m"
         sidecar.istio.io/proxyMemory: "128Mi"
-        admission.datadoghq.com/enabled: "true"
-        {{- if eq .Values.language "java" }}
-#        admission.datadoghq.com/java-lib.version: v1.49.0
-        instrumentation.opentelemetry.io/inject-java: "true"
-        {{- end }}
-        {{- if eq .Values.language "nodejs" }}
-        instrumentation.opentelemetry.io/inject-nodejs: "true"
-#        admission.datadoghq.com/js-lib.version: v5.52.0
-        {{- end }}
       labels:
         app.kubernetes.io/name: {{ $fullname }}
         app.kubernetes.io/part-of: {{ .Values.name }}
         app.kubernetes.io/club: {{ .Values.club }} 
-        admission.datadoghq.com/enabled: "true"
     spec:
       serviceAccountName: {{ $namespace }}-vault-service-account
       affinity:
