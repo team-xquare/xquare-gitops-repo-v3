@@ -1,8 +1,8 @@
 branch: develop
-buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["yarn install","yarn nx build @entry/design-token","yarn nx build @entry/ui","yarn nx build @entry/Entry-auth"],"output_dir":"apps/entry-auth/dist","port":4200}'
+buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["yarn install","yarn nx build @entry/design-token","yarn nx build @entry/ui","yarn nx build @entry/Entry-user"],"output_dir":"apps/entry-user/dist","port":4200}'
 containerPort: 4200
 criticalService: false
-domain: entry-admission-auth-dev.xquare.app
+domain: entry-admission-user-dev.xquare.app
 githubInstallationID: 77967720
 language: vite
 organization: EntryDSM
