@@ -7,5 +7,5 @@ githubInstallationID: 62433388
 language: react
 organization: team-xquare
 repository: xquare-frontend-v2
-imageTag: 057328a6567312fc275603b1f68292eaff0def87
-instanceType: "x3.small"
+imageTag: 2a66d8ae3b99a3682cad484bf4a5972bf8c29531
+instanceType: x3.small
