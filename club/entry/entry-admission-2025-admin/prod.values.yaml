@@ -1,0 +1,12 @@
+branch: develop
+buildConfig: '{"builder":"vite","node_version":"22","build_dir":"/","build_commands":["yarn install","yarn nx build @entry/design-token","yarn nx build @entry/ui","yarn nx build @entry/Entry-admin"],"output_dir":"/apps/entry-admin/dist","port":4200}'
+containerPort: 4200
+criticalService: false
+domain: entry-admission-admin-dev.xquare.app
+githubInstallationID: 77967720
+language: vite
+organization: EntryDSM
+port: 4200
+repository: Entry-Admission
+instanceType: x3.large
+imageTag: 7b92df1c69a76d0f3493a0163fad97e62a57f620
