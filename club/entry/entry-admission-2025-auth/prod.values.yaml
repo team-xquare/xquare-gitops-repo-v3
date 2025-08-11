@@ -8,4 +8,5 @@ language: vite
 organization: EntryDSM
 port: 4200
 repository: Entry-Admission
+instanceType: x3.large
 imageTag: latest
