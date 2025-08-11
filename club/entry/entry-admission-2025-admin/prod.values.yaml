@@ -9,4 +9,4 @@ organization: EntryDSM
 port: 4200
 repository: Entry-Admission
 instanceType: x3.large
-imageTag: 45b8461530ab90e51ae30b961d9d93c8a6e7b122
+imageTag: edf04d5116f723f8832e2e2dca56cb47bb15f734
